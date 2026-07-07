@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GenSo Kids - Aplikasi Pembelajaran Awal Prasekolah</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Quicksand -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
+    <!-- Firebase Legacy/Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
@@ -38,87 +42,29 @@
             50% { transform: translateY(-15px) rotate(3deg); }
             100% { transform: translateY(0px) rotate(0deg); }
         }
-        .floating-element {
-            animation: float 6s ease-in-out infinite;
-        }
-        .floating-delayed {
-            animation: float 8s ease-in-out infinite;
-            animation-delay: 2s;
-        }
+        .floating-element { animation: float 6s ease-in-out infinite; }
+        .floating-delayed { animation: float 8s ease-in-out infinite; animation-delay: 2s; }
         
         /* Pulse animation for kids attention */
         @keyframes gentle-pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.04); }
         }
-        .kid-pulse {
-            animation: gentle-pulse 3s ease-in-out infinite;
-        }
+        .kid-pulse { animation: gentle-pulse 3s ease-in-out infinite; }
         
-        /* Custom scrollbar for premium look */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        .screen {
-            display: none;
-        }
-        .screen.active {
-            display: block;
-        }
-
-        /* --- CSS Khas Logo --- */
-        .gs-logo-img {
-            max-width: 100%;
-            height: auto;
-            object-fit: contain;
-            display: block;
-        }
-
-        .gs-logo-splash {
-            width: 110px;
-            max-height: 110px;
-            object-fit: contain;
-        }
-
-        .gs-logo-header {
-            width: 42px;
-            height: 42px;
-            object-fit: contain;
-        }
-
-        .gs-logo-footer {
-            width: 22px;
-            height: 22px;
-            object-fit: contain;
-        }
-
-        @media (max-width: 480px) {
-            .gs-logo-splash {
-                width: 90px;
-                max-height: 90px;
-            }
-
-            .gs-logo-header {
-                width: 36px;
-                height: 36px;
-            }
-        }
+        .screen { display: none; }
+        .screen.active { display: block; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
+    <!-- Latar Belakang Elemen Islamik & Kanak-kanak -->
     <div class="fixed inset-0 pointer-events-none z-0 opacity-15 overflow-hidden">
         <svg class="absolute top-10 left-10 w-16 h-16 text-purple-400 floating-element" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2s.67 5.33 6 6-6 .67-6 6-5.33-.67-6-6 5.33-.67 6-6zm0 0"/></svg>
         <svg class="absolute top-1/4 right-12 w-20 h-20 text-yellow-400 floating-delayed" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 9.91 9.91 0 0 0-.1-1.35A6.07 6.07 0 0 1 15 15a6 6 0 0 1-6-6 6.07 6.07 0 0 1 4.35-5.9A9.91 9.91 0 0 0 12 3z"/></svg>
@@ -127,30 +73,37 @@
         <svg class="absolute top-1/2 left-1/3 w-14 h-14 text-yellow-300 floating-element" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2s.67 5.33 6 6-6 .67-6 6-5.33-.67-6-6 5.33-.67 6-6zm0 0"/></svg>
     </div>
 
+    <!-- MAIN APP CONTAINER -->
     <main class="flex-grow flex items-center justify-center p-4 relative z-10 w-full max-w-4xl mx-auto">
         
+        <!-- ================= 1. SPLASH SCREEN (LOGO BESAR) ================= -->
         <div id="screen-splash" class="screen active text-center w-full py-12">
             <div class="max-w-md mx-auto bg-white rounded-[2.5rem] p-10 shadow-xl border-4 border-yellow-300 relative overflow-hidden kid-pulse">
                 
-                <div class="w-32 h-32 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg mb-6 relative border-4 border-yellow-300 overflow-hidden p-3">
-                    <div class="absolute inset-2 border-2 border-dashed border-purple-300 rounded-full animate-spin [animation-duration:20s]"></div>
-                    <img 
-                        src="logo-gs.png" 
-                        alt="Logo Genius Solihin" 
-                        class="gs-logo-img gs-logo-splash relative z-10"
-                        onerror="this.style.display='none'; this.parentElement.innerHTML += '<div class=&quot;text-genius-purple font-bold text-xl relative z-10&quot;>GS</div>';"
-                    >
-                </div>
+                <!-- Logo Rasmi Genius Solihin (Muka Depan) -->
+                <svg viewBox="0 0 100 100" class="w-32 h-32 mx-auto drop-shadow-lg mb-6">
+                    <circle cx="50" cy="50" r="48" fill="#6a2c91" />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#fec107" stroke-width="2.5" stroke-dasharray="6,4" />
+                    <!-- Bulan Sabit -->
+                    <path d="M55 25 a18 18 0 1 0 15 32 a22 22 0 1 1 -15 -32 z" fill="#fec107" />
+                    <!-- Bintang -->
+                    <polygon points="65,35 67,40 72,40 68,44 69,49 65,46 61,49 62,44 58,40 63,40" fill="#fec107" />
+                    <!-- Buku -->
+                    <path d="M30 63 Q40 53 50 63 Q60 53 70 63 L70 75 Q60 65 50 75 Q40 65 30 75 Z" fill="#ffffff" />
+                    <line x1="50" y1="63" x2="50" y2="75" stroke="#6a2c91" stroke-width="2" />
+                    <text x="50" y="55" font-family="'Quicksand', sans-serif" font-weight="bold" font-size="16" fill="#ffffff" text-anchor="middle">GS</text>
+                </svg>
 
                 <h1 class="text-5xl font-bold text-genius-purple tracking-wide mb-2">GenSo Kids</h1>
                 <p class="text-md text-amber-600 font-semibold mb-8">“Belajar, Bermain & Membesar Dengan Bijak”</p>
                 <div class="inline-block px-8 py-3 bg-genius-yellow text-genius-purple font-bold text-lg rounded-full shadow-md hover:bg-yellow-400 transition transform hover:scale-105 cursor-pointer animate-bounce" onclick="initApp()">
                     Sedia, Jom Mula! <i class="fas fa-play ml-2"></i>
                 </div>
-                <p class="text-xs text-gray-400 mt-6 font-medium">Genius Solihin • Edisi Matematik Awal</p>
+                <p class="text-xs text-gray-400 mt-6 font-medium">Genius Solihin • Edisi Matematik Awal KSPK</p>
             </div>
         </div>
 
+        <!-- ================= ONBOARDING SCREEN ================= -->
         <div id="screen-onboarding" class="screen text-center w-full">
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-purple-200 max-w-2xl mx-auto">
                 <div class="flex justify-center mb-4 text-genius-purple">
@@ -174,25 +127,27 @@
             </div>
         </div>
 
+        <!-- ================= PROFILE MANAGEMENT SCREEN ================= -->
         <div id="screen-profile-manage" class="screen w-full">
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-yellow-200 max-w-md mx-auto text-center">
-                
-                <div class="flex justify-center items-center gap-2 mb-4">
-                    <div class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow border-2 border-yellow-300 overflow-hidden p-1">
-                        <img 
-                            src="logo-gs.png" 
-                            alt="Logo Genius Solihin" 
-                            class="gs-logo-img gs-logo-header"
-                            onerror="this.style.display='none'; this.parentElement.innerHTML='GS'; this.parentElement.classList.add('text-genius-purple','font-bold','text-xs');"
-                        >
-                    </div>
-                    <span class="text-xl font-bold text-genius-purple">GenSo Kids</span>
+                <!-- Logo Header Small -->
+                <div class="flex justify-center items-center gap-3 mb-6">
+                    <svg viewBox="0 0 100 100" class="w-12 h-12 drop-shadow-md">
+                        <circle cx="50" cy="50" r="48" fill="#6a2c91" />
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="#fec107" stroke-width="2.5" stroke-dasharray="6,4" />
+                        <path d="M55 25 a18 18 0 1 0 15 32 a22 22 0 1 1 -15 -32 z" fill="#fec107" />
+                        <polygon points="65,35 67,40 72,40 68,44 69,49 65,46 61,49 62,44 58,40 63,40" fill="#fec107" />
+                        <path d="M30 63 Q40 53 50 63 Q60 53 70 63 L70 75 Q60 65 50 75 Q40 65 30 75 Z" fill="#ffffff" />
+                        <line x1="50" y1="63" x2="50" y2="75" stroke="#6a2c91" stroke-width="2" />
+                    </svg>
+                    <span class="text-2xl font-bold text-genius-purple">GenSo Kids</span>
                 </div>
                 
-                <h2 class="text-2xl font-bold text-gray-800 mb-6" id="profile-title">Siapa Nak Belajar Hari Ini?</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-6" id="profile-title">Siapa Nak Belajar Hari Ini?</h2>
                 
                 <div id="profiles-list" class="grid grid-cols-2 gap-4 mb-6">
-                    </div>
+                    <!-- Dynamic profiles -->
+                </div>
 
                 <div id="add-profile-box" class="border-2 border-dashed border-purple-300 rounded-2xl p-4 bg-purple-50/50">
                     <p class="text-sm font-semibold text-purple-700 mb-3 text-left">Tambah Profil Baru:</p>
@@ -214,37 +169,49 @@
             </div>
         </div>
 
+        <!-- ================= 2. MAIN MENU SCREEN (DENGAN LOGO DI HEADER) ================= -->
         <div id="screen-main-menu" class="screen w-full">
-            <div class="bg-white rounded-3xl p-4 shadow-md mb-6 flex flex-wrap justify-between items-center gap-4 border-2 border-purple-100">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow border-2 border-yellow-300 overflow-hidden p-1">
-                        <img 
-                            src="logo-gs.png" 
-                            alt="Logo Genius Solihin" 
-                            class="gs-logo-img gs-logo-header"
-                            onerror="this.style.display='none'; this.parentElement.innerHTML='GS'; this.parentElement.classList.add('text-genius-purple','font-bold','text-xs');"
-                        >
-                    </div>
-                    
-                    <div id="current-avatar-display" class="text-4xl p-2 bg-purple-50 rounded-full border border-purple-200">👦</div>
-                    <div>
-                        <h3 class="text-xl font-bold text-genius-purple" id="current-name-display">Khalifah</h3>
-                        <p class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full inline-block" id="current-age-display">Umur: Belum pilih</p>
+            <!-- Header bar with current child info -->
+            <div class="bg-white rounded-3xl p-4 shadow-md mb-6 flex flex-col md:flex-row justify-between items-center gap-4 border-2 border-purple-100">
+                
+                <!-- Logo Rasmi Genius Solihin (Menu) -->
+                <div class="flex items-center gap-3 self-start md:self-auto w-full md:w-auto border-b md:border-none pb-3 md:pb-0 border-purple-50">
+                    <svg viewBox="0 0 100 100" class="w-11 h-11 drop-shadow-sm">
+                        <circle cx="50" cy="50" r="48" fill="#6a2c91" />
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="#fec107" stroke-width="2.5" stroke-dasharray="6,4" />
+                        <path d="M55 25 a18 18 0 1 0 15 32 a22 22 0 1 1 -15 -32 z" fill="#fec107" />
+                        <polygon points="65,35 67,40 72,40 68,44 69,49 65,46 61,49 62,44 58,40 63,40" fill="#fec107" />
+                        <path d="M30 63 Q40 53 50 63 Q60 53 70 63 L70 75 Q60 65 50 75 Q40 65 30 75 Z" fill="#ffffff" />
+                        <line x1="50" y1="63" x2="50" y2="75" stroke="#6a2c91" stroke-width="2" />
+                    </svg>
+                    <div class="text-left leading-tight">
+                        <h3 class="text-[13px] font-bold text-genius-purple">Genius</h3>
+                        <h3 class="text-[13px] font-bold text-amber-500">Solihin</h3>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full font-bold shadow-inner flex items-center gap-1.5">
-                        <i class="fas fa-star text-genius-yellow animate-spin [animation-duration:10s]"></i> 
-                        <span id="header-stars">0</span> Bintang
+
+                <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+                    <div class="flex items-center gap-3">
+                        <div id="current-avatar-display" class="text-3xl p-2 bg-purple-50 rounded-full border border-purple-200">👦</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-genius-purple" id="current-name-display">Khalifah</h3>
+                            <p class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full inline-block" id="current-age-display">Umur: Belum pilih</p>
+                        </div>
                     </div>
-                    <button onclick="goToScreen('screen-profile-manage')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-full text-xs font-bold transition">
-                        <i class="fas fa-exchange-alt"></i> Tukar
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <div class="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-full font-bold shadow-inner flex items-center gap-1.5">
+                            <i class="fas fa-star text-genius-yellow animate-spin [animation-duration:10s]"></i> 
+                            <span id="header-stars">0</span>
+                        </div>
+                        <button onclick="goToScreen('screen-profile-manage')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-full text-sm font-bold transition">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
+            <!-- Big Interactive Grid Menu -->
             <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-                
                 <button onclick="startLearningNode()" class="bg-gradient-to-br from-purple-600 to-genius-purple text-white p-6 rounded-[2rem] shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 flex flex-col items-center justify-center text-center border-b-8 border-purple-900 group">
                     <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition">🚀</div>
                     <span class="text-xl font-bold tracking-wide">Mula Belajar</span>
@@ -281,6 +248,7 @@
             </div>
         </div>
 
+        <!-- ================= AGE SELECTION ================= -->
         <div id="screen-age-selection" class="screen w-full">
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-purple-200 max-w-2xl mx-auto text-center">
                 <h2 class="text-3xl font-bold text-genius-purple mb-2">Pilih Umur Anda</h2>
@@ -315,6 +283,7 @@
             </div>
         </div>
 
+        <!-- ================= MODULE SELECTION ================= -->
         <div id="screen-module-selection" class="screen w-full">
             <div class="bg-white rounded-[2.5rem] p-6 shadow-xl border-4 border-purple-100 w-full">
                 <div class="flex justify-between items-center mb-6">
@@ -328,10 +297,12 @@
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="modules-grid-container">
-                    </div>
+                    <!-- Dynamic modules list -->
+                </div>
             </div>
         </div>
 
+        <!-- ================= INTERACTIVE GAME SYSTEM ================= -->
         <div id="screen-game" class="screen w-full">
             <div class="bg-white rounded-[2.5rem] p-6 shadow-xl border-4 border-purple-300 relative">
                 
@@ -360,10 +331,12 @@
                     <h3 id="game-instruction-text" class="text-xl md:text-2xl font-bold text-gray-800 px-2 mb-6">Kira berapa objek di bawah.</h3>
                     
                     <div id="game-visual-area" class="min-h-[160px] max-h-[280px] bg-amber-50/40 border-2 border-dashed border-amber-200 rounded-2xl p-6 mb-8 flex flex-wrap justify-center items-center gap-4 overflow-y-auto">
-                        </div>
+                        <!-- Dynamic vector objects -->
+                    </div>
 
                     <div id="game-options-area" class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl mx-auto">
-                        </div>
+                        <!-- Choice cards -->
+                    </div>
                 </div>
 
                 <div id="game-feedback" class="absolute inset-0 bg-white/95 rounded-[2.5rem] flex flex-col items-center justify-center p-6 text-center transition-all opacity-0 pointer-events-none z-20">
@@ -377,6 +350,7 @@
             </div>
         </div>
 
+        <!-- ================= REWARDS GALLERY ================= -->
         <div id="screen-rewards" class="screen w-full">
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-pink-200 max-w-2xl mx-auto text-center">
                 <div class="flex justify-between items-center mb-6">
@@ -401,20 +375,34 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-4" id="stickers-grid">
-                    </div>
+                    <!-- Dynamic child digital stickers -->
+                </div>
             </div>
         </div>
 
+        <!-- ================= 3. PARENTS DASHBOARD (LOGO DI TAJUK) ================= -->
         <div id="screen-parents" class="screen w-full">
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-blue-200 w-full">
-                <div class="flex flex-wrap justify-between items-center mb-6 gap-2">
-                    <div>
-                        <h2 class="text-2xl font-bold text-blue-800"><i class="fas fa-user-shield mr-1"></i> Dashboard Laporan Ibu Bapa</h2>
-                        <p class="text-xs text-gray-500 font-medium">Pantau perkembangan asas kurikulum KSPK anak anda.</p>
+                
+                <div class="flex flex-wrap justify-between items-center mb-6 gap-4 border-b border-blue-50 pb-4">
+                    <div class="flex items-center gap-4">
+                        <!-- Logo Rasmi Genius Solihin (Dashboard) -->
+                        <svg viewBox="0 0 100 100" class="w-12 h-12 drop-shadow flex-shrink-0">
+                            <circle cx="50" cy="50" r="48" fill="#6a2c91" />
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="#fec107" stroke-width="2.5" stroke-dasharray="6,4" />
+                            <path d="M55 25 a18 18 0 1 0 15 32 a22 22 0 1 1 -15 -32 z" fill="#fec107" />
+                            <polygon points="65,35 67,40 72,40 68,44 69,49 65,46 61,49 62,44 58,40 63,40" fill="#fec107" />
+                            <path d="M30 63 Q40 53 50 63 Q60 53 70 63 L70 75 Q60 65 50 75 Q40 65 30 75 Z" fill="#ffffff" />
+                            <line x1="50" y1="63" x2="50" y2="75" stroke="#6a2c91" stroke-width="2" />
+                        </svg>
+                        <div>
+                            <h2 class="text-xl md:text-2xl font-bold text-blue-800"><i class="fas fa-user-shield mr-1 hidden md:inline"></i> Laporan Ibu Bapa</h2>
+                            <p class="text-[11px] md:text-xs text-gray-500 font-medium mt-1">Genius Solihin - Pantau perkembangan KSPK anak anda.</p>
+                        </div>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="resetCurrentChildProgress()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold text-xs transition">
-                            <i class="fas fa-trash-alt"></i> Reset Progress
+                            <i class="fas fa-trash-alt"></i> Reset
                         </button>
                         <button onclick="goToScreen('screen-main-menu')" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-bold text-xs transition">
                             <i class="fas fa-home"></i> Menu
@@ -423,6 +411,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <!-- Child Metadata Panel -->
                     <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4">
                         <h3 class="font-bold text-blue-900 mb-2 border-b border-blue-200 pb-1">Profil Anak</h3>
                         <p class="text-sm text-gray-700">Nama: <strong id="parent-child-name" class="text-blue-700">-</strong></p>
@@ -431,21 +420,25 @@
                         <p class="text-xs text-gray-400 mt-3 font-medium">Sinkronisasi Firebase: <span class="text-green-600 font-bold">Aktif/Sedia</span></p>
                     </div>
 
+                    <!-- Performance Mastery Summary -->
                     <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 md:col-span-2">
                         <h3 class="font-bold text-emerald-900 mb-3 border-b border-emerald-200 pb-1">Tahap Penguasaan Modul Matematik Awal</h3>
                         <div class="grid grid-cols-2 gap-3" id="parent-metrics-box">
-                            </div>
+                            <!-- Metrics items -->
+                        </div>
                     </div>
                 </div>
 
                 <div class="bg-amber-50 border-2 border-dashed border-amber-300 rounded-2xl p-5">
                     <h3 class="font-bold text-amber-800 mb-2"><i class="fas fa-lightbulb"></i> Cadangan Aktiviti Sokongan Di Rumah:</h3>
                     <ul id="parent-suggestions-list" class="list-disc pl-5 space-y-2 text-sm text-gray-700 font-medium">
-                        </ul>
+                        <!-- Suggestions injected dynamically -->
+                    </ul>
                 </div>
             </div>
         </div>
 
+        <!-- ================= APP SETTINGS SCREEN ================= -->
         <div id="screen-settings" class="screen w-full">
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-slate-200 max-w-md mx-auto">
                 <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Tetapan Aplikasi</h2>
@@ -485,6 +478,7 @@
             </div>
         </div>
 
+        <!-- ================= ABOUT APP SCREEN ================= -->
         <div id="screen-about" class="screen w-full">
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-purple-200 max-w-2xl mx-auto">
                 <h2 class="text-2xl font-bold text-genius-purple text-center mb-4">Tentang GenSo Kids</h2>
@@ -506,6 +500,7 @@
 
     </main>
 
+    <!-- PARENT SECURITY LOCK GATE -->
     <div id="parent-gate-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl p-6 shadow-2xl max-w-sm w-full text-center border-4 border-blue-400">
             <span class="text-4xl">🔐</span>
@@ -525,23 +520,25 @@
         </div>
     </div>
 
-    <footer class="w-full text-center py-4 bg-white border-t border-purple-100 relative z-10 flex flex-col items-center justify-center gap-1">
-        <div class="flex items-center gap-1.5 text-xs font-bold text-genius-purple">
-            <div class="w-6 h-6 bg-white rounded-full flex items-center justify-center border border-purple-200 overflow-hidden p-0.5">
-                <img 
-                    src="logo-gs.png" 
-                    alt="Logo Genius Solihin" 
-                    class="gs-logo-img gs-logo-footer"
-                    onerror="this.style.display='none'; this.parentElement.innerHTML='GS'; this.parentElement.classList.add('text-genius-purple','font-bold','text-[8px]');"
-                >
-            </div>
+    <!-- ================= 4. FOOTER APP BRANDING (LOGO MINI) ================= -->
+    <footer class="w-full text-center py-4 bg-white border-t border-purple-100 relative z-10 flex flex-col items-center justify-center gap-1.5">
+        <div class="flex items-center gap-2 text-[11px] font-bold text-genius-purple">
+            <!-- Logo Rasmi Genius Solihin (Footer Mini) -->
+            <svg viewBox="0 0 100 100" class="w-6 h-6 drop-shadow-sm">
+                <circle cx="50" cy="50" r="48" fill="#6a2c91" />
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#fec107" stroke-width="2.5" stroke-dasharray="6,4" />
+                <path d="M55 25 a18 18 0 1 0 15 32 a22 22 0 1 1 -15 -32 z" fill="#fec107" />
+                <polygon points="65,35 67,40 72,40 68,44 69,49 65,46 61,49 62,44 58,40 63,40" fill="#fec107" />
+                <path d="M30 63 Q40 53 50 63 Q60 53 70 63 L70 75 Q60 65 50 75 Q40 65 30 75 Z" fill="#ffffff" />
+                <line x1="50" y1="63" x2="50" y2="75" stroke="#6a2c91" stroke-width="2" />
+            </svg>
             <span>GenSo Kids &bull; Genius Solihin</span>
         </div>
-        <p class="text-[10px] text-gray-400 font-medium">&copy; 2026 Genius Solihin. Aplikasi Pendidikan Matematik Awal Prasekolah KSPK.</p>
+        <p class="text-[9px] text-gray-400 font-medium">&copy; 2026 Genius Solihin. Aplikasi Pendidikan Matematik Awal Prasekolah KSPK.</p>
     </footer>
 
+    <!-- ================= ENGINE CODE ================= -->
     <script>
-        // --- FIREBASE CONFIGURATION & INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCD0S_Kdg3mxlO06ZTm_nLwCBsNlf7LPTU",
             authDomain: "genso-kids.firebaseapp.com",
@@ -561,25 +558,13 @@
             console.warn("Firebase failed to initialize. Fallback state to LocalStorage strictly active.", error);
         }
 
-        // --- APP STATE ENGINE ---
         let state = {
             profiles: [],
             currentProfileId: null,
-            settings: {
-                audioEnabled: true,
-                musicEnabled: true
-            },
-            currentGame: {
-                age: null,
-                module: null,
-                questions: [],
-                currentIndex: 0,
-                score: 0,
-                starsEarned: 0
-            }
+            settings: { audioEnabled: true, musicEnabled: true },
+            currentGame: { age: null, module: null, questions: [], currentIndex: 0, score: 0, starsEarned: 0 }
         };
 
-        // --- SYSTEM CONSTANTS & DIGITAL ASSET GENERATORS (SVGs) ---
         const STICKERS_COLLECTION = [
             { id: 'stk_star', emoji: '⭐', name: 'Bintang Al-Fatih' },
             { id: 'stk_moon', emoji: '🌙', name: 'Bulan Syawal' },
@@ -598,7 +583,6 @@
             coin_rm: `<svg class="w-12 h-12 text-teal-600 drop-shadow" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0d9488" stroke="#115e59" stroke-width="2"/><text x="12" y="16" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">RM1</text></svg>`
         };
 
-        // --- WEB AUDIO API SYNTHESIZER ---
         let audioCtx = null;
         function playTone(freq, type, duration) {
             if (!state.settings.audioEnabled) return;
@@ -614,46 +598,36 @@
                 gain.connect(audioCtx.destination);
                 osc.start();
                 osc.stop(audioCtx.currentTime + duration);
-            } catch(e) { console.error("Audio Web Synth Error", e); }
+            } catch(e) {}
         }
 
         function playSoundEffect(name) {
             if (name === 'click') {
                 playTone(450, 'sine', 0.08);
             } else if (name === 'correct') {
-                playTone(523.25, 'triangle', 0.15);
-                setTimeout(() => playTone(659.25, 'triangle', 0.15), 100);
-                setTimeout(() => playTone(783.99, 'triangle', 0.15), 200);
-                setTimeout(() => playTone(1046.50, 'triangle', 0.3), 300);
+                playTone(523.25, 'triangle', 0.15); setTimeout(() => playTone(659.25, 'triangle', 0.15), 100); setTimeout(() => playTone(1046.50, 'triangle', 0.3), 300);
             } else if (name === 'wrong') {
-                playTone(220, 'sawtooth', 0.25);
-                setTimeout(() => playTone(180, 'sawtooth', 0.2), 120);
+                playTone(220, 'sawtooth', 0.25); setTimeout(() => playTone(180, 'sawtooth', 0.2), 120);
             } else if (name === 'star') {
-                playTone(880, 'sine', 0.1);
-                setTimeout(() => playTone(1320, 'sine', 0.2), 80);
+                playTone(880, 'sine', 0.1); setTimeout(() => playTone(1320, 'sine', 0.2), 80);
             }
         }
 
-        // --- MALAY TEXT TO SPEECH ENGINE (KSPK ALIGNED DIALECT) ---
         function speakMalay(text) {
             if (!state.settings.audioEnabled) return;
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 let utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ms-MY';
-                
-                // Fetch list of available voices to bind Malay accurately if browser holds it
                 let voices = window.speechSynthesis.getVoices();
                 let myVoice = voices.find(v => v.lang.includes('ms') || v.lang.includes('MY'));
                 if (myVoice) utterance.voice = myVoice;
-                
-                utterance.rate = 0.85; // Slow and friendly for toddlers
-                utterance.pitch = 1.1; // Cute high pitch accent 
+                utterance.rate = 0.85; 
+                utterance.pitch = 1.1; 
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        // --- SCREEN ROUTING ENGINE ---
         function goToScreen(screenId) {
             playSoundEffect('click');
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -662,30 +636,23 @@
                 target.classList.add('active');
                 window.scrollTo(0, 0);
             }
-            
-            // Run hook configurations per page screen entry
             if (screenId === 'screen-profile-manage') renderProfilesList();
             if (screenId === 'screen-main-menu') refreshMainMenuHeader();
             if (screenId === 'screen-rewards') renderRewardsGallery();
             if (screenId === 'screen-parents') renderParentsDashboard();
         }
 
-        // --- CORE INITIATION ---
         function initApp() {
-            // Load state from local storage first to hydrate
             const savedState = localStorage.getItem('genso_kids_state');
             if (savedState) {
                 try {
                     let parsed = JSON.parse(savedState);
                     if (parsed.profiles) state.profiles = parsed.profiles;
                     if (parsed.settings) state.settings = parsed.settings;
-                } catch(e) { console.error("Hydration error local storage", e); }
+                } catch(e) {}
             }
-
-            // Synch settings DOM controls
             document.getElementById('toggle-audio').checked = state.settings.audioEnabled;
             document.getElementById('toggle-music').checked = state.settings.musicEnabled;
-
             speakMalay("Selamat datang ke GenSo Kids! Jom kita belajar sambil bermain!");
             goToScreen('screen-onboarding');
         }
@@ -698,34 +665,21 @@
 
         function saveStateToStorage() {
             localStorage.setItem('genso_kids_state', JSON.stringify(state));
-            
-            // If active profile exists and Firebase is connected, back it up to real-time cloud
             if (db && state.currentProfileId) {
                 let currentProfile = state.profiles.find(p => p.id === state.currentProfileId);
-                if (currentProfile) {
-                    db.ref('profiles/' + state.currentProfileId).set(currentProfile)
-                        .catch(err => console.warn("Firebase sync push rejected: ", err));
-                }
+                if (currentProfile) db.ref('profiles/' + state.currentProfileId).set(currentProfile).catch(err => {});
             }
         }
 
-        // --- CHILD PROFILES MODEL CONTROLLER ---
         function renderProfilesList() {
             const listContainer = document.getElementById('profiles-list');
             listContainer.innerHTML = '';
-            
             if (state.profiles.length === 0) {
                 listContainer.innerHTML = `<p class="col-span-2 text-xs text-gray-400 font-bold p-4">Tiada profil dijumpai. Sila cipta satu di bawah!</p>`;
                 return;
             }
-
             state.profiles.forEach(p => {
-                let avatarEmoji = '👦';
-                if (p.avatar === 'girl') avatarEmoji = '👧';
-                if (p.avatar === 'robot') avatarEmoji = '🤖';
-                if (p.avatar === 'star') avatarEmoji = '⭐';
-                if (p.avatar === 'moon') avatarEmoji = '🌙';
-
+                let avatarEmoji = p.avatar === 'girl' ? '👧' : p.avatar === 'robot' ? '🤖' : p.avatar === 'star' ? '⭐' : p.avatar === 'moon' ? '🌙' : '👦';
                 let card = document.createElement('div');
                 card.className = "p-4 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-2xl cursor-pointer transition transform hover:scale-105 flex flex-col items-center justify-center relative";
                 card.onclick = () => selectProfile(p.id);
@@ -733,15 +687,12 @@
                     <div class="text-4xl mb-1">${avatarEmoji}</div>
                     <div class="font-bold text-gray-800 text-sm truncate max-w-full">${p.name}</div>
                     <div class="text-[10px] text-purple-600 font-bold">${p.age ? p.age + ' Tahun' : 'Belum Pilih Umur'}</div>
-                    <div class="absolute top-1 right-1 bg-yellow-400 text-purple-900 font-bold text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-                        ⭐ ${p.stars || 0}
-                    </div>
+                    <div class="absolute top-1 right-1 bg-yellow-400 text-purple-900 font-bold text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">⭐ ${p.stars || 0}</div>
                 `;
                 listContainer.appendChild(card);
             });
         }
 
-        // Dynamic multi-avatar picker click binding
         document.querySelectorAll('.avatar-option').forEach(opt => {
             opt.onclick = function() {
                 document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('border-purple-600', 'bg-purple-100'));
@@ -753,39 +704,19 @@
         function createNewProfile() {
             const nameInput = document.getElementById('child-name-input');
             const name = nameInput.value.trim();
-            if (!name) {
-                alert("Sila masukkan nama manja anak!");
-                return;
-            }
+            if (!name) return alert("Sila masukkan nama manja anak!");
 
             let selectedAvatar = 'boy';
             const selectedOpt = document.querySelector('.avatar-option[data-selected="true"]');
-            if (selectedOpt) {
-                selectedAvatar = selectedOpt.getAttribute('data-avatar');
-            }
+            if (selectedOpt) selectedAvatar = selectedOpt.getAttribute('data-avatar');
 
             let newProf = {
-                id: 'child_' + Date.now(),
-                name: name,
-                avatar: selectedAvatar,
-                age: null,
-                stars: 0,
-                stickers: [],
-                performance: {
-                    bilangan: 0,
-                    bentuk: 0,
-                    saiz: 0,
-                    warna: 0,
-                    corak: 0,
-                    ruang: 0,
-                    tambahtolak: 0
-                }
+                id: 'child_' + Date.now(), name: name, avatar: selectedAvatar, age: null, stars: 0, stickers: [],
+                performance: { bilangan: 0, bentuk: 0, saiz: 0, warna: 0, corak: 0, ruang: 0, tambahtolak: 0 }
             };
-
             state.profiles.push(newProf);
             state.currentProfileId = newProf.id;
             saveStateToStorage();
-            
             nameInput.value = '';
             speakMalay("Profil baru telah disimpan! Bagus " + name + "!");
             goToScreen('screen-age-selection');
@@ -796,26 +727,17 @@
             let p = state.profiles.find(prof => prof.id === id);
             saveStateToStorage();
             speakMalay("Selamat datang kembali " + p.name + "!");
-            if (!p.age) {
-                goToScreen('screen-age-selection');
-            } else {
-                goToScreen('screen-main-menu');
-            }
+            if (!p.age) goToScreen('screen-age-selection');
+            else goToScreen('screen-main-menu');
         }
 
         function refreshMainMenuHeader() {
             let p = state.profiles.find(prof => prof.id === state.currentProfileId);
             if (!p) return;
-
             document.getElementById('current-name-display').innerText = p.name;
             document.getElementById('current-age-display').innerText = p.age ? `Umur: ${p.age} Tahun` : 'Umur: Belum pilih';
             document.getElementById('header-stars').innerText = p.stars || 0;
-
-            let avatarEmoji = '👦';
-            if (p.avatar === 'girl') avatarEmoji = '👧';
-            if (p.avatar === 'robot') avatarEmoji = '🤖';
-            if (p.avatar === 'star') avatarEmoji = '⭐';
-            if (p.avatar === 'moon') avatarEmoji = '🌙';
+            let avatarEmoji = p.avatar === 'girl' ? '👧' : p.avatar === 'robot' ? '🤖' : p.avatar === 'star' ? '⭐' : p.avatar === 'moon' ? '🌙' : '👦';
             document.getElementById('current-avatar-display').innerText = avatarEmoji;
         }
 
@@ -830,23 +752,14 @@
 
         function startLearningNode() {
             let p = state.profiles.find(prof => prof.id === state.currentProfileId);
-            if (!p) {
-                goToScreen('screen-profile-manage');
-                return;
-            }
-            if (!p.age) {
-                goToScreen('screen-age-selection');
-                return;
-            }
+            if (!p) return goToScreen('screen-profile-manage');
+            if (!p.age) return goToScreen('screen-age-selection');
 
-            // Render modules grid screen dynamic matching active child age constraints
             const age = p.age;
             document.getElementById('module-age-indicator').innerText = `Tahap Kesukaran KSPK: ${age} Tahun`;
-            
             const grid = document.getElementById('modules-grid-container');
             grid.innerHTML = '';
 
-            // Standard modules definition mapping KSPK guidelines core requirements
             let modulesList = [
                 { id: 'bilangan', name: 'Bilangan & Nombor', icon: '🔢', color: 'from-purple-400 to-purple-500' },
                 { id: 'bentuk', name: 'Mengecam Bentuk', icon: '📐', color: 'from-amber-400 to-amber-500' },
@@ -856,95 +769,289 @@
                 { id: 'ruang', name: 'Ruang & Kedudukan', icon: '🏠', color: 'from-orange-400 to-orange-500' }
             ];
 
-            // Append Advanced Operation module conditionally if child is 5 or 6 years old
-            if (age === 5 || age === 6) {
-                modulesList.push({ id: 'tambahtolak', name: 'Tambah & Tolak Mudah', icon: '➕', color: 'from-rose-400 to-rose-500' });
-            }
+            if (age === 5 || age === 6) modulesList.push({ id: 'tambahtolak', name: 'Tambah & Tolak Mudah', icon: '➕', color: 'from-rose-400 to-rose-500' });
 
             modulesList.forEach(m => {
                 let btn = document.createElement('button');
                 btn.className = `bg-gradient-to-br ${m.color} text-white p-4 rounded-2xl shadow hover:shadow-md transition text-center flex flex-col items-center justify-center group transform hover:scale-102`;
                 btn.onclick = () => initGameSession(age, m.id);
-                btn.innerHTML = `
-                    <div class="text-3xl mb-2 group-hover:animate-bounce">${m.icon}</div>
-                    <span class="text-sm font-bold leading-tight">${m.name}</span>
-                `;
+                btn.innerHTML = `<div class="text-3xl mb-2 group-hover:animate-bounce">${m.icon}</div><span class="text-sm font-bold leading-tight">${m.name}</span>`;
                 grid.appendChild(btn);
             });
-
             goToScreen('screen-module-selection');
         }
 
-        // --- GAME QUESTION LOGIC GENERATOR ENGINE ---
         function initGameSession(age, moduleId) {
-            state.currentGame.age = age;
-            state.currentGame.module = moduleId;
-            state.currentGame.currentIndex = 0;
-            state.currentGame.score = 0;
-            state.currentGame.starsEarned = 0;
-            state.currentGame.questions = generateQuestionsLibrary(age, moduleId);
-
+            state.currentGame = { age: age, module: moduleId, currentIndex: 0, score: 0, starsEarned: 0, questions: generateQuestionsLibrary(age, moduleId) };
             goToScreen('screen-game');
             loadQuestionIndex(0);
         }
 
         function startDailyActivity() {
             let p = state.profiles.find(prof => prof.id === state.currentProfileId);
-            if (!p || !p.age) {
-                alert("Sila pilih profil dan umur terlebih dahulu!");
-                return;
-            }
-            // Mix of random generic modules questions
-            initGameSession(p.age, 'bilangan'); // Fallback simply to counting dynamic setup
+            if (!p || !p.age) return alert("Sila pilih profil dan umur terlebih dahulu!");
+            initGameSession(p.age, 'bilangan');
             document.getElementById('game-module-badge').innerText = "Aktiviti Harian";
         }
 
         function generateQuestionsLibrary(age, module) {
             let list = [];
-            
             if (module === 'bilangan') {
-                if (age === 3) {
-                    list = [
-                        { text: "Kira berapa biji buah epal comel.", asset: 'apple', count: 2, options: [1, 2, 3], answer: 2 },
-                        { text: "Tekan nombor TIGA (3) di bawah.", asset: 'star', count: 3, options: [2, 3, 5], answer: 3 },
-                        { text: "Kira berapa bintang berkilau yang kelihatan.", asset: 'star', count: 1, options: [1, 4, 2], answer: 1 },
-                        { text: "Berapakah jumlah kereta mainan ini?", asset: 'car', count: 4, options: [3, 4, 5], answer: 4 },
-                        { text: "Kira berapa biji bola di dalam kotak.", asset: 'ball', count: 2, options: [2, 3, 1], answer: 2 }
-                    ];
-                } else if (age === 4) {
-                    list = [
-                        { text: "Kira berapa biji epal merah.", asset: 'apple', count: 6, options: [4, 6, 7], answer: 6 },
-                        { text: "Kira jumlah kereta comel di bawah.", asset: 'car', count: 5, options: [5, 3, 6], answer: 5 },
-                        { text: "Berapakah jumlah bola biru yang ada?", asset: 'ball', count: 8, options: [6, 7, 8], answer: 8 },
-                        { text: "Kira berapa objek bintang di bawah.", asset: 'star', count: 7, options: [5, 7, 9], answer: 7 },
-                        { text: "Padankan jumlah objek: Kira jumlah kereta.", asset: 'car', count: 10, options: [8, 9, 10], answer: 10}
-                    ];
-                } else if (age === 5) {
-                    list = [
-                        { text: "Kira objek bertuah berikut.", asset: 'star', count: 9, options: [8, 9, 10], answer: 9 },
-                        { text: "Apakah nombor yang datang SEBELUM nombor 5?", type: 'text_logic', options: [3, 4, 6], answer: 4 },
-                        { text: "Apakah nombor yang datang SELEPAS nombor 7?", type: 'text_logic', options: [6, 8, 9], answer: 8 },
-                        { text: "Bandingkan: Mana yang BANYAK? Pilih angka objek epal ini.", asset: 'apple', count: 8, options: [4, 6, 8], answer: 8 },
-                        { text: "Kira jumlah ganjaran duit syiling 50 sen Malaysia.", asset: 'coin', count: 6, options: [5, 6, 7], answer: 6 }
-                    ];
-                } else if (age === 6) {
-                    list = [
-                        { text: "Kira bilangan objek berikut sehingga lingkungan 20.", asset: 'star', count: 14, options: [12, 14, 16], answer: 14 },
-                        { text: "Susun nombor MENAIK: Selesai 3, 4, 5, apakah seterusnya?", type: 'text_logic', options: [6, 7, 8], answer: 6 },
-                        { text: "Susun nombor MENURUN: 10, 9, 8, apakah nombor seterusnya?", type: 'text_logic', options: [5, 6, 7], answer: 7 },
-                        { text: "Bandingkan nombor: Antara 12 dan 15, mana nombor lebih BESAR?", type: 'text_logic', options: [12, 15, 9], answer: 15 },
-                        { text: "Kira jumlah keseluruhan duit syiling yang kelihatan.", asset: 'coin', count: 18, options: [15, 18, 20], answer: 18 }
-                    ];
-                }
-            } else if (module === 'bentuk') {
-                list = [
-                    { text: "Pilih bentuk BULAT yang menyerupai roda.", type: 'shape_find', shape: 'bulat', options: ['Bulat', 'Segi Tiga', 'Segi Empat'], answer: 'Bulat' },
-                    { text: "Pilih bentuk SEGI TIGA seperti bumbung rumah.", type: 'shape_find', shape: 'segitiga', options: ['Segi Empat', 'Segi Tiga', 'Bintang'], answer: 'Segi Tiga' },
-                    { text: "Mana satu reka bentuk BINTANG bercahaya?", type: 'shape_find', shape: 'bintang', options: ['Bujur', 'Bulat', 'Bintang'], answer: 'Bintang' },
-                    { text: "Pilih objek berciri SEGI EMPAT sama rata.", type: 'shape_find', shape: 'segiempat', options: ['Segi Empat', 'Bulat', 'Bujur'], answer: 'Segi Empat' },
-                    { text: "Di manakah bentuk BUJUR seperti telur?", type: 'shape_find', shape: 'bujur', options: ['Segi Tiga', 'Bujur', 'Bulat'], answer: 'Bujur' }
+                if (age === 3) list = [
+                    { text: "Kira berapa biji buah epal comel.", asset: 'apple', count: 2, options: [1, 2, 3], answer: 2 },
+                    { text: "Tekan nombor TIGA (3) di bawah.", asset: 'star', count: 3, options: [2, 3, 5], answer: 3 },
+                    { text: "Kira berapa bintang berkilau yang kelihatan.", asset: 'star', count: 1, options: [1, 4, 2], answer: 1 },
+                    { text: "Berapakah jumlah kereta mainan ini?", asset: 'car', count: 4, options: [3, 4, 5], answer: 4 },
+                    { text: "Kira berapa biji bola di dalam kotak.", asset: 'ball', count: 2, options: [2, 3, 1], answer: 2 }
                 ];
-            } else if (module === 'saiz') {
-                list = [
-                    { text: "Pilih objek yang BESAR.", type: 'size_compare', mode: 'besar', options: ['Besar', 'Kecil'], answer: 'Besar' },
-                    { text: "Pilih objek yang KEC
+                else if (age === 4) list = [
+                    { text: "Kira berapa biji epal merah.", asset: 'apple', count: 6, options: [4, 6, 7], answer: 6 },
+                    { text: "Kira jumlah kereta comel di bawah.", asset: 'car', count: 5, options: [5, 3, 6], answer: 5 },
+                    { text: "Berapakah jumlah bola biru yang ada?", asset: 'ball', count: 8, options: [6, 7, 8], answer: 8 },
+                    { text: "Kira berapa objek bintang di bawah.", asset: 'star', count: 7, options: [5, 7, 9], answer: 7 },
+                    { text: "Padankan jumlah objek: Kira jumlah kereta.", asset: 'car', count: 10, options: [8, 9, 10], answer: 10}
+                ];
+                else if (age === 5) list = [
+                    { text: "Kira objek bertuah berikut.", asset: 'star', count: 9, options: [8, 9, 10], answer: 9 },
+                    { text: "Apakah nombor yang datang SEBELUM nombor 5?", type: 'text_logic', options: [3, 4, 6], answer: 4 },
+                    { text: "Apakah nombor yang datang SELEPAS nombor 7?", type: 'text_logic', options: [6, 8, 9], answer: 8 },
+                    { text: "Bandingkan: Mana yang BANYAK? Pilih angka objek epal ini.", asset: 'apple', count: 8, options: [4, 6, 8], answer: 8 },
+                    { text: "Kira jumlah ganjaran duit syiling 50 sen Malaysia.", asset: 'coin', count: 6, options: [5, 6, 7], answer: 6 }
+                ];
+                else if (age === 6) list = [
+                    { text: "Kira bilangan objek berikut sehingga lingkungan 20.", asset: 'star', count: 14, options: [12, 14, 16], answer: 14 },
+                    { text: "Susun nombor MENAIK: Selesai 3, 4, 5, apakah seterusnya?", type: 'text_logic', options: [6, 7, 8], answer: 6 },
+                    { text: "Susun nombor MENURUN: 10, 9, 8, apakah nombor seterusnya?", type: 'text_logic', options: [5, 6, 7], answer: 7 },
+                    { text: "Bandingkan nombor: Antara 12 dan 15, mana nombor lebih BESAR?", type: 'text_logic', options: [12, 15, 9], answer: 15 },
+                    { text: "Kira jumlah keseluruhan duit syiling yang kelihatan.", asset: 'coin', count: 18, options: [15, 18, 20], answer: 18 }
+                ];
+            } else if (module === 'bentuk') list = [
+                { text: "Pilih bentuk BULAT yang menyerupai roda.", type: 'shape_find', shape: 'bulat', options: ['Bulat', 'Segi Tiga', 'Segi Empat'], answer: 'Bulat' },
+                { text: "Pilih bentuk SEGI TIGA seperti bumbung rumah.", type: 'shape_find', shape: 'segitiga', options: ['Segi Empat', 'Segi Tiga', 'Bintang'], answer: 'Segi Tiga' },
+                { text: "Mana satu reka bentuk BINTANG bercahaya?", type: 'shape_find', shape: 'bintang', options: ['Bujur', 'Bulat', 'Bintang'], answer: 'Bintang' },
+                { text: "Pilih objek berciri SEGI EMPAT sama rata.", type: 'shape_find', shape: 'segiempat', options: ['Segi Empat', 'Bulat', 'Bujur'], answer: 'Segi Empat' },
+                { text: "Di manakah bentuk BUJUR seperti telur?", type: 'shape_find', shape: 'bujur', options: ['Segi Tiga', 'Bujur', 'Bulat'], answer: 'Bujur' }
+            ]; else if (module === 'saiz') list = [
+                { text: "Pilih objek yang BESAR.", type: 'size_compare', mode: 'besar', options: ['Besar', 'Kecil'], answer: 'Besar' },
+                { text: "Pilih objek yang KECIL comel.", type: 'size_compare', mode: 'kecil', options: ['Besar', 'Kecil'], answer: 'Kecil' },
+                { text: "Bandingkan Tinggi Rendah: Mana yang TINGGI?", type: 'size_compare', mode: 'tinggi', options: ['Tinggi', 'Rendah'], answer: 'Tinggi' },
+                { text: "Mana satu barisan objek yang mempunyai BANYAK bilangan?", type: 'size_compare', mode: 'banyak', options: ['Banyak', 'Sedikit'], answer: 'Banyak' },
+                { text: "Bandingkan Panjang Pendek: Mana yang PANJANG?", type: 'size_compare', mode: 'panjang', options: ['Panjang', 'Pendek'], answer: 'Panjang' }
+            ]; else if (module === 'warna') list = [
+                { text: "Cari objek yang berwarna KUNING diraja.", type: 'color_find', color: 'yellow', colorName: 'Kuning', options: ['Merah', 'Kuning', 'Biru'], answer: 'Kuning' },
+                { text: "Pilih warna MERAH seperti buah strawberi.", type: 'color_find', color: 'red', colorName: 'Merah', options: ['Merah', 'Hijau', 'Hitam'], answer: 'Merah' },
+                { text: "Mana satu objek berwarna BIRU laut?", type: 'color_find', color: 'blue', colorName: 'Biru', options: ['Putih', 'Biru', 'Kuning'], answer: 'Biru' },
+                { text: "Kenali warna HIJAU daun subur.", type: 'color_find', color: 'green', colorName: 'Hijau', options: ['Hijau', 'Merah', 'Ungu'], answer: 'Hijau' },
+                { text: "Pilih butang objek berwarna UNGU rasmi Genius Solihin.", type: 'color_find', color: 'purple', colorName: 'Ungu', options: ['Hitam', 'Kuning', 'Ungu'], answer: 'Ungu' }
+            ]; else if (module === 'corak') list = [
+                { text: "Sambung corak ini: 🔴, 🟡, 🔴, 🟡, Apakah seterusnya?", type: 'pattern_match', seq: ['🔴','🟡','🔴','🟡'], options: ['🔴', '🟡', '🟢'], answer: '🔴' },
+                { text: "Sambung susunan bentuk: ⭐, 🌙, ⭐, 🌙, Apakah selepas ini?", type: 'pattern_match', seq: ['⭐','🌙','⭐','🌙'], options: ['⭐', '🌙', '🍎'], answer: '⭐' },
+                { text: "Lengkapkan corak warna: 🔵, 🟢, 🔵, 🟢, Apakah jawapannya?", type: 'pattern_match', seq: ['🔵','🟢','🔵','🟢'], options: ['🔴', '🔵', '🟢'], answer: '🔵' },
+                { text: "Ikuti susunan objek: 🍎, 🚗, 🍎, 🚗, Apakah seterusnya?", type: 'pattern_match', seq: ['🍎','🚗','🍎','🚗'], options: ['🍎', '🚗', '⭐'], answer: '🍎' },
+                { text: "Sambung corak teratur: 🟡, 🔵, 🟡, 🔵, Apakah seterusnya?", type: 'pattern_match', seq: ['🟡','🔵','🟡','🔵'], options: ['🟡', '🔵', '🟢'], answer: '🟡' }
+            ]; else if (module === 'ruang') list = [
+                { text: "Di manakah posisi burung? Pilih DI ATAS dahan rumah.", type: 'spatial', pos: 'atas', options: ['Atas', 'Bawah', 'Dalam'], answer: 'Atas' },
+                { text: "Letakkan bola mainan DI DALAM kotak selamat.", type: 'spatial', pos: 'dalam', options: ['Luar', 'Dalam', 'Belakang'], answer: 'Dalam' },
+                { text: "Kucing berlari ke HADAPAN pintu utama.", type: 'spatial', pos: 'depan', options: ['Depan', 'Belakang', 'Bawah'], answer: 'Depan' },
+                { text: "Kasut adik disimpan DI BAWAH rak meja.", type: 'spatial', pos: 'bawah', options: ['Atas', 'Bawah', 'Luar'], answer: 'Bawah' },
+                { text: "Mainan diletakkan di LUAR bakul kain.", type: 'spatial', pos: 'luar', options: ['Dalam', 'Luar', 'Tepi'], answer: 'Luar' }
+            ]; else if (module === 'tambahtolak') list = [
+                { text: "Ali ada 2 epal. Ibu bagi 1 lagi epal. Berapa JUMLAH semua epal?", type: 'math_story', op: 'add', items: 3, expr: "2 + 1 = ?", options: [2, 3, 4], answer: 3 },
+                { text: "Ada 4 ganjaran bintang. 1 bintang sudah terbang. TINGGAL berapa?", type: 'math_story', op: 'sub', items: 3, expr: "4 - 1 = ?", options: [2, 3, 5], answer: 3 },
+                { text: "Ada 3 biji bola biru. Ayah beli 2 biji lagi. Berapakah jumlahnya?", type: 'math_story', op: 'add', items: 5, expr: "3 + 2 = ?", options: [4, 5, 6], answer: 5 },
+                { text: "Ada 5 buah kereta comel. 2 kereta masuk garaj. Berapa yang tinggal di luar?", type: 'math_story', op: 'sub', items: 3, expr: "5 - 2 = ?", options: [2, 3, 4], answer: 3 },
+                { text: "Adik mempunyai 1 epal manis. Kakak beri lagi 2 epal. Berapa jumlahnya?", type: 'math_story', op: 'add', items: 3, expr: "1 + 2 = ?", options: [2, 3, 4], answer: 3 }
+            ];
+
+            return list.length ? list : [{ text: "Kira berapa objek bintang ini.", asset: 'star', count: 3, options: [2, 3, 4], answer: 3 }];
+        }
+
+        function triggerVoiceInstruction() {
+            const q = state.currentGame.questions[state.currentGame.currentIndex];
+            if (q) speakMalay(q.text);
+        }
+
+        function loadQuestionIndex(index) {
+            const q = state.currentGame.questions[index];
+            if (!q) return;
+
+            document.getElementById('game-module-badge').innerText = state.currentGame.module.toUpperCase();
+            document.getElementById('game-progress-text').innerText = `Soalan ${index + 1}/${state.currentGame.questions.length}`;
+            document.getElementById('game-progress-bar').style.width = `${((index + 1) / state.currentGame.questions.length) * 100}%`;
+            document.getElementById('game-instruction-text').innerText = q.text;
+            
+            setTimeout(() => triggerVoiceInstruction(), 400);
+            const canvas = document.getElementById('game-visual-area');
+            canvas.innerHTML = '';
+
+            if (q.asset && q.count) {
+                for (let i = 0; i < q.count; i++) canvas.innerHTML += SVG_ASSETS[q.asset] || '⭐';
+            } else if (q.type === 'shape_find') {
+                if (q.shape === 'bulat') canvas.innerHTML = `<div class="w-24 h-24 bg-purple-500 rounded-full shadow-lg"></div>`;
+                if (q.shape === 'segitiga') canvas.innerHTML = `<div class="w-0 h-0 border-l-[50px] border-l-transparent border-r-[50px] border-r-transparent border-b-[86px] border-b-amber-500 drop-shadow-md"></div>`;
+                if (q.shape === 'segiempat') canvas.innerHTML = `<div class="w-24 h-24 bg-blue-500 rounded-xl shadow-lg"></div>`;
+                if (q.shape === 'bintang') canvas.innerHTML = SVG_ASSETS.star;
+                if (q.shape === 'bujur') canvas.innerHTML = `<div class="w-20 h-28 bg-pink-400 rounded-[50%/40%] shadow-lg"></div>`;
+            } else if (q.type === 'size_compare') {
+                if (q.mode === 'besar') canvas.innerHTML = `<div class="flex items-end gap-8"><div class="text-center"><div class="w-24 h-24 bg-purple-600 rounded-full"></div><p class="text-xs font-bold mt-1">A</p></div><div class="text-center"><div class="w-12 h-12 bg-purple-300 rounded-full"></div><p class="text-xs font-bold mt-1">B</p></div></div>`;
+                else if (q.mode === 'kecil') canvas.innerHTML = `<div class="flex items-end gap-8"><div class="text-center"><div class="w-10 h-10 bg-teal-500 rounded-xl"></div><p class="text-xs font-bold mt-1">A</p></div><div class="text-center"><div class="w-20 h-20 bg-teal-200 rounded-xl"></div><p class="text-xs font-bold mt-1">B</p></div></div>`;
+                else if (q.mode === 'tinggi') canvas.innerHTML = `<div class="flex items-end gap-8"><div class="text-center"><div class="w-8 h-32 bg-amber-500 rounded-t-md"></div><p class="text-xs font-bold mt-1">A</p></div><div class="text-center"><div class="w-8 h-16 bg-amber-300 rounded-t-md"></div><p class="text-xs font-bold mt-1">B</p></div></div>`;
+                else canvas.innerHTML = `<div>${SVG_ASSETS.car} &nbsp; ${SVG_ASSETS.car}</div>`;
+            } else if (q.type === 'color_find') {
+                let twColor = q.color === 'red' ? 'bg-red-500' : q.color === 'blue' ? 'bg-blue-500' : q.color === 'green' ? 'bg-green-500' : q.color === 'purple' ? 'bg-purple-600' : 'bg-yellow-400';
+                canvas.innerHTML = `<div class="w-24 h-24 ${twColor} rounded-[2rem] shadow-lg border-4 border-white animate-bounce"></div>`;
+            } else if (q.type === 'pattern_match') {
+                canvas.innerHTML = `<div class="text-3xl tracking-widest bg-white p-4 rounded-xl shadow-inner border border-gray-100">${q.seq.join(' ')} ... ?</div>`;
+            } else if (q.type === 'math_story') {
+                canvas.innerHTML = `<div class="flex flex-col items-center gap-2"><div class="flex gap-2">${SVG_ASSETS.apple} ${SVG_ASSETS.apple}</div><div class="text-2xl font-bold text-genius-purple">${q.expr}</div></div>`;
+            } else { canvas.innerHTML = `<span class="text-5xl">💡</span>`; }
+
+            const optArea = document.getElementById('game-options-area');
+            optArea.innerHTML = '';
+            q.options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = "p-4 bg-white border-4 border-purple-100 hover:border-genius-yellow rounded-2xl font-bold text-xl text-gray-800 shadow-sm hover:shadow transition transform hover:scale-102 flex justify-center items-center";
+                btn.onclick = () => submitAnswer(opt);
+                btn.innerText = opt;
+                optArea.appendChild(btn);
+            });
+        }
+
+        function submitAnswer(chosenOption) {
+            const q = state.currentGame.questions[state.currentGame.currentIndex];
+            const feedback = document.getElementById('game-feedback');
+            const icon = document.getElementById('feedback-icon');
+            const title = document.getElementById('feedback-title');
+            const desc = document.getElementById('feedback-desc');
+
+            if (chosenOption === q.answer) {
+                playSoundEffect('correct');
+                state.currentGame.score++;
+                state.currentGame.starsEarned += 2;
+                const cheers = ["MasyaAllah, hebat!", "Alhamdulillah, bijaknya!", "Pandai sekali!", "Bagus! Tepat sekali!"];
+                const pick = cheers[Math.floor(Math.random() * cheers.length)];
+                icon.innerText = "🎉"; title.innerText = "Betul! ✨"; title.className = "text-3xl font-bold text-emerald-600 mb-2"; desc.innerText = pick;
+                speakMalay(pick);
+            } else {
+                playSoundEffect('wrong');
+                const tryAgains = ["Cuba lagi ya, sayang.", "Sikit lagi! Cuba semula.", "Teruskan usaha, anda boleh!"];
+                const pick = tryAgains[Math.floor(Math.random() * tryAgains.length)];
+                icon.innerText = "💪"; title.innerText = "Cuba Lagi! ❤️"; title.className = "text-3xl font-bold text-amber-500 mb-2"; desc.innerText = pick;
+                speakMalay(pick);
+            }
+            feedback.classList.remove('pointer-events-none', 'opacity-0');
+        }
+
+        function nextQuestion() {
+            document.getElementById('game-feedback').classList.add('pointer-events-none', 'opacity-0');
+            state.currentGame.currentIndex++;
+            if (state.currentGame.currentIndex < state.currentGame.questions.length) loadQuestionIndex(state.currentGame.currentIndex);
+            else finalizeGameSession();
+        }
+
+        function finalizeGameSession() {
+            let p = state.profiles.find(prof => prof.id === state.currentProfileId);
+            if (!p) return;
+            p.stars = (p.stars || 0) + state.currentGame.starsEarned;
+            const mod = state.currentGame.module;
+            if (p.performance) p.performance[mod] = Math.min((p.performance[mod] || 0) + 20, 100);
+
+            if (state.currentGame.score >= 4 && p.stickers.length < STICKERS_COLLECTION.length) {
+                let lockedStickers = STICKERS_COLLECTION.filter(s => !p.stickers.includes(s.id));
+                if (lockedStickers.length) {
+                    p.stickers.push(lockedStickers[0].id);
+                    speakMalay("MasyaAllah! Awak dapat pelekat baru!");
+                }
+            }
+            saveStateToStorage();
+            alert(`🎉 Syabas! Sesi selesai!\n\nBetul: ${state.currentGame.score}/5\nGanjaran Bintang: +${state.currentGame.starsEarned} 🌟`);
+            goToScreen('screen-main-menu');
+        }
+
+        function quitGame() {
+            if (confirm("Adakah anda pasti mahu keluar dari permainan ini? Progress soalan semasa tidak disimpan.")) goToScreen('screen-main-menu');
+        }
+
+        function renderRewardsGallery() {
+            let p = state.profiles.find(prof => prof.id === state.currentProfileId);
+            if (!p) return;
+            document.getElementById('rewards-stars-count').innerText = p.stars || 0;
+            document.getElementById('rewards-stickers-count').innerText = `${p.stickers ? p.stickers.length : 0}/${STICKERS_COLLECTION.length}`;
+            const grid = document.getElementById('stickers-grid');
+            grid.innerHTML = '';
+            STICKERS_COLLECTION.forEach(stk => {
+                const isUnlocked = p.stickers && p.stickers.includes(stk.id);
+                let box = document.createElement('div');
+                box.className = `p-4 border-2 rounded-2xl text-center transition ${isUnlocked ? 'bg-white border-pink-400 shadow-md' : 'bg-gray-100 border-gray-200 opacity-40'}`;
+                box.innerHTML = `<div class="text-4xl mb-1">${isUnlocked ? stk.emoji : '🔒'}</div><p class="text-xs font-bold text-gray-700 truncate">${stk.name}</p><p class="text-[9px] font-bold ${isUnlocked ? 'text-pink-600' : 'text-gray-400'} mt-0.5">${isUnlocked ? 'Terbuka' : 'Terkunci'}</p>`;
+                grid.appendChild(box);
+            });
+        }
+
+        function openParentZone() {
+            const val1 = Math.floor(Math.random() * 8) + 3;
+            const val2 = Math.floor(Math.random() * 7) + 2;
+            document.getElementById('parent-gate-question').innerText = `${val1} + ${val2} = ?`;
+            document.getElementById('parent-gate-answer').value = '';
+            document.getElementById('parent-gate-answer').setAttribute('data-correct', val1 + val2);
+            document.getElementById('parent-gate-modal').classList.remove('hidden');
+        }
+
+        function closeParentGate() { document.getElementById('parent-gate-modal').classList.add('hidden'); }
+
+        function verifyParentGate() {
+            const input = document.getElementById('parent-gate-answer').value;
+            const correct = document.getElementById('parent-gate-answer').getAttribute('data-correct');
+            if (parseInt(input) === parseInt(correct)) {
+                closeParentGate(); goToScreen('screen-parents');
+            } else { alert("Jawapan salah! Sila buktikan anda ibu bapa dewasa."); closeParentGate(); }
+        }
+
+        function renderParentsDashboard() {
+            let p = state.profiles.find(prof => prof.id === state.currentProfileId);
+            document.getElementById('parent-child-name').innerText = p ? p.name : 'Tiada Anak Dipilih';
+            document.getElementById('parent-child-age').innerText = p && p.age ? `${p.age} Tahun` : 'Belum Ditetapkan';
+
+            const metricsBox = document.getElementById('parent-metrics-box');
+            metricsBox.innerHTML = '';
+            const suggestionsList = document.getElementById('parent-suggestions-list');
+            suggestionsList.innerHTML = '';
+
+            if (!p) { metricsBox.innerHTML = `<p class="text-xs text-gray-400">Sila wujudkan profil murid dahulu.</p>`; return; }
+
+            const performanceMap = p.performance || { bilangan: 0, bentuk: 0, saiz: 0, warna: 0, corak: 0, ruang: 0 };
+            Object.keys(performanceMap).forEach(key => {
+                const value = performanceMap[key] || 0;
+                let ratingText = "Perlu Latihan ❗"; let textColor = "text-red-600";
+                if (value >= 40 && value < 75) { ratingText = "Baik 👍"; textColor = "text-blue-600"; }
+                else if (value >= 75) { ratingText = "Sangat Cemerlang ✨"; textColor = "text-emerald-600"; }
+
+                let itemRow = document.createElement('div');
+                itemRow.className = "bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm text-xs";
+                itemRow.innerHTML = `<div class="capitalize font-bold text-gray-700">${key}</div><div class="w-full bg-gray-100 rounded-full h-2 my-1"><div class="bg-blue-600 h-2 rounded-full" style="width: ${Math.max(value, 10)}%"></div></div><div class="flex justify-between font-bold text-[10px] mt-0.5"><span class="text-gray-400">Skor: ${value}/100</span><span class="${textColor}">${ratingText}</span></div>`;
+                metricsBox.appendChild(itemRow);
+
+                if (value < 50) {
+                    if (key === 'bilangan') suggestionsList.innerHTML += `<li>💡 <strong>Modul Bilangan:</strong> Latih anak mengira objek konkrit sebenar seperti sudu, biskut, atau buah-buahan secara fizikal di rumah dari 1 hingga 10.</li>`;
+                    if (key === 'bentuk') suggestionsList.innerHTML += `<li>💡 <strong>Modul Bentuk:</strong> Minta anak cari dan tunjuk objek berciri bentuk bulat (seperti jam dinding) atau segi empat (seperti buku) di sekeliling ruang tamu.</li>`;
+                    if (key === 'warna') suggestionsList.innerHTML += `<li>💡 <strong>Modul Warna:</strong> Main permainan mengasingkan mainan blok lego mengikut kelompok kumpulan warna yang sama.</li>`;
+                }
+            });
+
+            if (suggestionsList.innerHTML === '') {
+                suggestionsList.innerHTML = `<li>✨ <strong>Semua Modul Berada Dalam Keadaan Baik:</strong> Tahniah! Teruskan galakan konsisten, kekalkan momentum pembelajaran harian anak anda sekurang-kurangnya 10 minit sehari.</li><li>📖 Sediakan buku cerita berilustrasi nombor ceria bagi mengekalkan kestabilan minat fokus intelek anak.</li>`;
+            }
+        }
+
+        function resetCurrentChildProgress() {
+            if (confirm("Adakah anda pasti mahu set semula (reset) semua skor prestasi dan bintang anak ini kepada sifar (0)?")) {
+                let p = state.profiles.find(prof => prof.id === state.currentProfileId);
+                if (p) {
+                    p.stars = 0; p.stickers = []; p.performance = { bilangan: 0, bentuk: 0, saiz: 0, warna: 0, corak: 0, ruang: 0, tambahtolak: 0 };
+                    saveStateToStorage(); renderParentsDashboard(); alert("Progress telah dikosongkan.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
