@@ -3,106 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GenSo Kids - by Genius Solihin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>GenSo Kids - Aplikasi Pembelajaran Awal Prasekolah</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
-        body { font-family: 'Quicksand', sans-serif; background-color: #f8fafc; }
-        .screen { display: none; }
-        .screen.active { display: block; }
-        .gs-logo-img { max-width: 100%; height: auto; object-fit: contain; display: block; }
-        .gs-logo-splash { width: 110px; max-height: 110px; }
-        .gs-logo-header { width: 42px; height: 42px; }
-        .gs-logo-footer { width: 22px; height: 22px; }
-    </style>
-</head>
-<body class="bg-slate-100 flex justify-center min-h-screen">
-
-    <div class="w-full max-w-md bg-white shadow-2xl flex flex-col min-h-screen">
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f7f4fc;
+            overflow-x: hidden;
+            user-select: none;
+        }
         
-        <header id="app-header" class="hidden items-center justify-between p-4 border-b-2 border-purple-100 bg-white">
-            <div class="flex items-center gap-3">
-                <img src="/logo-gs.png" class="gs-logo-header" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div class="hidden font-bold text-purple-700 text-xs" id="fallback-header">GS</div>
-                <div>
-                    <h1 class="text-lg font-black text-purple-800 leading-tight">GenSo Kids</h1>
-                    <p class="text-[10px] font-bold text-yellow-500">by Genius Solihin</p>
-                </div>
-            </div>
-            <div id="star-counter" class="bg-purple-50 px-3 py-1 rounded-full font-bold text-purple-700 text-sm">⭐ 0</div>
-        </header>
-
-        <main class="flex-1 p-4">
-
-            <div id="screen-splash" class="screen active text-center pt-20">
-                <div class="w-32 h-32 mx-auto bg-white rounded-full border-4 border-yellow-300 flex items-center justify-center mb-6 overflow-hidden p-2">
-                    <img src="/logo-gs.png" class="gs-logo-splash" onerror="this.parentElement.innerHTML='<span class=\'text-4xl\'>GS</span>'">
-                </div>
-                <h1 class="text-4xl font-black text-purple-800 mb-2">GenSo Kids</h1>
-                <p class="text-yellow-600 font-bold mb-10">Belajar Matematik Jadi Mudah!</p>
-                <button onclick="goToScreen('screen-onboarding')" class="bg-purple-700 text-white font-bold text-xl py-4 px-8 rounded-full shadow-lg hover:bg-purple-800 transition">
-                    Sedia, Jom Mula!
-                </button>
-            </div>
-
-            <div id="screen-onboarding" class="screen pt-10 text-center">
-                <h2 class="text-2xl font-bold text-purple-800 mb-6">Selamat Datang!</h2>
-                <p class="mb-8">Melahirkan Anak-anak yang Bijaksana & Soleh.</p>
-                <button onclick="goToScreen('screen-profile-manage')" class="bg-yellow-500 text-white font-bold py-3 px-6 rounded-full">Seterusnya</button>
-            </div>
-
-            <div id="screen-profile-manage" class="screen pt-10">
-                <div class="flex items-center justify-center gap-2 mb-6">
-                    <img src="/logo-gs.png" class="gs-logo-header" onerror="this.style.display='none'">
-                    <span class="text-xl font-bold text-purple-800">GenSo Kids</span>
-                </div>
-                <h2 class="text-xl font-bold text-center mb-6">Siapa Nak Belajar?</h2>
-                <button onclick="goToScreen('screen-main-menu')" class="w-full py-4 bg-purple-600 text-white rounded-xl font-bold">Mula Belajar</button>
-            </div>
-
-            <div id="screen-main-menu" class="screen pt-10">
-                <h2 class="text-center font-black text-purple-800 text-2xl mb-6">Menu Utama</h2>
-                <button onclick="alert('Modul Bilangan dibuka!')" class="w-full py-6 mb-4 bg-purple-100 rounded-2xl font-bold text-purple-800">Modul Bilangan</button>
-                <button onclick="goToScreen('screen-dashboard')" class="w-full py-6 bg-blue-100 rounded-2xl font-bold text-blue-800">Laporan Prestasi</button>
-            </div>
-
-            <div id="screen-dashboard" class="screen pt-10">
-                <h2 class="font-bold text-purple-800 mb-4">Laporan Prestasi</h2>
-                <button onclick="goToScreen('screen-main-menu')" class="text-purple-600 font-bold underline">Kembali</button>
-            </div>
-        </main>
-
-        <footer class="p-4 text-center border-t border-purple-50 text-xs font-bold text-gray-500 flex items-center justify-center gap-2">
-            <img src="/logo-gs.png" class="gs-logo-footer" onerror="this.style.display='none'">
-            <span>GenSo Kids &bull; Genius Solihin</span>
-        </footer>
-    </div>
-
-    <script>
-        function goToScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById(screenId);
-            if (target) {
-                target.classList.add('active');
-            }
-            
-            // Tunjuk header kecuali di splash screen
-            const header = document.getElementById('app-header');
-            if (screenId === 'screen-splash') {
-                header.classList.add('hidden');
-                header.classList.remove('flex');
-            } else {
-                header.classList.remove('hidden');
-                header.classList.add('flex');
-            }
+        .bg-genius-purple { background-color: #6a2c91; }
+        .text-genius-purple { color: #6a2c91; }
+        .border-genius-purple { border-color: #6a2c91; }
+        
+        .bg-genius-yellow { background-color: #fec107; }
+        .text-genius-yellow { color: #fec107; }
+        
+        .bg-pastel-pink { background-color: #fff0f5; }
+        .bg-pastel-blue { background-color: #e6f2ff; }
+        .bg-pastel-green { background-color: #e8f5e9; }
+        
+        /* Floating animations */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
         }
-
-        function initApp() {
-            // Function asal di sini
-            console.log("App Initialized");
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
         }
-    </script>
-</body>
-</html>
+        .floating-delayed {
+            animation: float 8s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+        
+        /* Pulse animation for kids attention */
+        @keyframes gentle-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+        .kid-pulse {
+            animation: gentle-pulse 3s ease-in-out infinite;
+        }
+        
+        /* Custom scrollbar for premium look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
