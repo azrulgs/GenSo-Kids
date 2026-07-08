@@ -95,7 +95,7 @@
                     <div class="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center shadow border-2 border-yellow-300 overflow-hidden p-1.5">
                         <img src="logo-gs.png" alt="Logo Genius Solihin" class="gs-logo-img" onerror="this.style.display='none'; this.parentElement.innerHTML='GS';">
                     </div>
-                    <h2 class="text-2xl font-bold text-genius-purple mt-2">Zon Log Masuk Ibu Bapa</h2>
+                    <h2 class="text-2xl font-bold text-genius-purple mt-2">Log Masuk Ibu Bapa</h2>
                     <p class="text-xs text-gray-500 font-medium mt-1">Pantau perkembangan Matematik Awal anak anda.</p>
                 </div>
                 <div class="space-y-4">
@@ -107,12 +107,15 @@
                         <label class="block text-xs font-bold text-purple-900 mb-1">Kata Laluan</label>
                         <input type="password" id="auth-password" placeholder="Minima 6 aksara" class="w-full px-4 py-2 border-2 border-purple-100 rounded-xl focus:outline-none focus:border-genius-purple text-sm font-semibold text-gray-700 bg-gray-50">
                     </div>
+                    <div class="text-right">
+                        <button onclick="handleForgotPassword()" class="text-xs font-bold text-purple-600 hover:underline">Lupa kata laluan?</button>
+                    </div>
                     <div class="flex gap-2 pt-2">
                         <button onclick="handleParentAuth('login')" class="w-1/2 py-2.5 bg-genius-purple text-white font-bold text-sm rounded-xl shadow-md hover:bg-purple-800 transition">Log Masuk</button>
                         <button onclick="handleParentAuth('register')" class="w-1/2 py-2.5 bg-amber-500 text-white font-bold text-sm rounded-xl shadow-md hover:bg-amber-600 transition">Daftar</button>
                     </div>
-                    <div class="text-center pt-2">
-                        <button onclick="skipToFallbackDemo()" class="text-xs font-bold text-purple-600 hover:underline">Gunakan Mod Demo (Data di peranti ini sahaja)</button>
+                    <div class="text-center pt-2 border-t border-gray-100 mt-2">
+                        <button onclick="skipToFallbackDemo()" class="text-xs font-bold text-purple-600 hover:underline mt-2">Gunakan Mod Demo (Data di peranti ini sahaja)</button>
                     </div>
                 </div>
             </div>
@@ -126,7 +129,8 @@
                     </div>
                     <span class="text-xl font-bold text-genius-purple">GenSo Kids</span>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Siapa Nak Belajar Hari Ini?</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Siapa Nak Belajar Hari Ini?</h2>
+                <p class="text-xs text-gray-500 font-medium mb-6">Anak hanya perlu pilih nama atau avatar. Login hanya untuk ibu bapa.</p>
                 <div id="profiles-list" class="grid grid-cols-2 gap-4 mb-6"></div>
                 <div id="add-profile-box" class="border-2 border-dashed border-purple-300 rounded-2xl p-4 bg-purple-50/50">
                     <p class="text-sm font-semibold text-purple-700 mb-3 text-left">Tambah Profil Baru:</p>
@@ -434,12 +438,35 @@
             db = firebase.database(); auth = firebase.auth(); isFirebaseActive = true;
         } catch (error) { console.warn("Firebase fallback active (LocalStorage mode ready)."); }
 
-        // --- 2. GLOBAL APP STATE ---
+        // --- 2. GLOBAL APP STATE & MIGRATION SAFETY ---
         let state = {
             profiles: [], currentProfileId: null, difficulty: 'easy',
             settings: { sfxEnabled: true, musicEnabled: true },
             currentGame: { age: null, module: null, difficulty: null, questions: [], currentIndex: 0, score: 0, wrongAttempts: 0, pendingAction: null }
         };
+
+        function normalizeProfiles() {
+            state.profiles = (state.profiles || []).map(p => {
+                return {
+                    id: p.id || ('child_' + Date.now() + '_' + Math.floor(Math.random() * 9999)),
+                    name: p.name || "Anak",
+                    avatar: p.avatar || "boy",
+                    age: p.age || null,
+                    stars: p.stars || 0,
+                    stickers: Array.isArray(p.stickers) ? p.stickers : [],
+                    performance: p.performance || {}
+                };
+            });
+
+            state.settings = {
+                sfxEnabled: state.settings?.sfxEnabled !== false,
+                musicEnabled: state.settings?.musicEnabled !== false
+            };
+
+            if (!state.currentGame) {
+                state.currentGame = { age: null, module: null, difficulty: null, questions: [], currentIndex: 0, score: 0, wrongAttempts: 0, pendingAction: null };
+            }
+        }
 
         // --- 3. REWARDS & VISUAL ASSETS ---
         const STICKERS_COLLECTION = [
@@ -454,11 +481,8 @@
         };
 
         // --- 4. AUDIO SYSTEM (DUAL: <AUDIO> TAG + WEB AUDIO API FALLBACK) ---
-        let sfxCtx = null;
-        let bgmCtx = null;
-        let bgmInterval = null;
-        let noteIndex = 0;
-        const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; // Melodi ceria yang lebih lembut (C4, E4, G4, C5, G4, E4)
+        let sfxCtx = null, bgmCtx = null, bgmInterval = null, noteIndex = 0;
+        const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; 
         
         function initAudioContexts() { if(!sfxCtx) sfxCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
@@ -487,9 +511,9 @@
             if(!state.settings.musicEnabled || !bgmCtx) return;
             try {
                 let osc = bgmCtx.createOscillator(); let gain = bgmCtx.createGain();
-                osc.type = 'triangle'; // Triangle lebih lembut daripada sine di nada tinggi
+                osc.type = 'triangle'; 
                 osc.frequency.value = melody[noteIndex];
-                gain.gain.setValueAtTime(0.015, bgmCtx.currentTime); // Sangat perlahan
+                gain.gain.setValueAtTime(0.015, bgmCtx.currentTime); 
                 gain.gain.exponentialRampToValueAtTime(0.001, bgmCtx.currentTime + 1.2);
                 osc.connect(gain); gain.connect(bgmCtx.destination);
                 osc.start(); osc.stop(bgmCtx.currentTime + 1.2);
@@ -500,12 +524,11 @@
         function startBackgroundMusic() {
             if (!state.settings.musicEnabled) return;
             const bgmAudioEl = document.getElementById('bgm-audio');
-            bgmAudioEl.volume = 0.2; // Volume perlahan
+            bgmAudioEl.volume = 0.2; 
             
             let playPromise = bgmAudioEl.play();
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
-                    // Fallback Web Audio API jika file audio tiada atau di-block browser
                     if(!bgmCtx) bgmCtx = new (window.AudioContext || window.webkitAudioContext)();
                     if (bgmCtx.state === 'suspended') bgmCtx.resume();
                     if (bgmInterval) clearInterval(bgmInterval);
@@ -527,7 +550,7 @@
             if (state.settings.musicEnabled) startBackgroundMusic(); else stopBackgroundMusic();
         }
 
-        // --- 5. FIREBASE AUTH & LOCALSTORAGE ---
+        // --- 5. FIREBASE AUTH, PASSWORD RESET & LOCALSTORAGE ---
         function handleParentAuth(type) {
             const email = document.getElementById('auth-email').value.trim(); const password = document.getElementById('auth-password').value;
             if (!email || !password) return alert("Sila isi e-mel dan kata laluan!");
@@ -539,10 +562,27 @@
                 auth.signInWithEmailAndPassword(email, password).then(cred => { parentUid = cred.user.uid; alert("Log masuk berjaya!"); loadUserDataAndProceed(); }).catch(err => alert("Ralat: " + err.message));
             }
         }
+        
+        function handleForgotPassword() {
+            const email = document.getElementById('auth-email').value.trim();
+            if (!email) { alert("Sila masukkan emel ibu bapa dahulu."); return; }
+            if (!isFirebaseActive || !auth) { alert("Fungsi reset kata laluan hanya tersedia untuk akaun berdaftar. Untuk Mod Demo, data hanya disimpan di peranti ini."); return; }
+
+            auth.sendPasswordResetEmail(email)
+                .then(() => { alert("Link reset kata laluan telah dihantar ke emel anda. Sila semak inbox atau folder spam."); })
+                .catch(error => {
+                    if (error.code === "auth/user-not-found") alert("Emel ini belum didaftarkan. Sila daftar akaun dahulu.");
+                    else if (error.code === "auth/invalid-email") alert("Format emel tidak sah.");
+                    else if (error.code === "auth/too-many-requests") alert("Terlalu banyak percubaan. Sila cuba lagi sebentar nanti.");
+                    else alert("Ralat reset kata laluan: " + error.message);
+                });
+        }
+
         function skipToFallbackDemo() { parentUid = "local_guest"; hydrateStateFromLocal(); goToScreen('screen-profile-manage'); }
         function loadUserDataAndProceed() {
             db.ref(`parents/${parentUid}/state`).once('value').then(snapshot => {
                 state.profiles = (snapshot.exists() && snapshot.val().profiles) ? snapshot.val().profiles : [];
+                normalizeProfiles();
                 saveStateToStorage(); goToScreen('screen-profile-manage');
             }).catch(() => skipToFallbackDemo());
         }
@@ -550,6 +590,7 @@
         function hydrateStateFromLocal() {
             const savedState = localStorage.getItem(`genso_kids_state_${parentUid}`);
             if (savedState) { try { let p = JSON.parse(savedState); if (p.profiles) state.profiles = p.profiles; if(p.settings) state.settings = p.settings; } catch(e) {} }
+            normalizeProfiles();
             document.getElementById('toggle-sfx').checked = state.settings.sfxEnabled; document.getElementById('toggle-music').checked = state.settings.musicEnabled;
         }
         function saveStateToStorage() {
@@ -597,7 +638,36 @@
         function setAgeGroup(age) { let p = state.profiles.find(prof => prof.id === state.currentProfileId); if (!p) return; p.age = age; saveStateToStorage(); goToScreen('screen-main-menu'); }
 
         // --- 8. MODULE & DIFFICULTY SELECTION ---
-        function setDifficulty(diff) { state.difficulty = diff; document.querySelectorAll("[id^='btn-diff-']").forEach(b => b.classList.remove('bg-purple-600', 'text-white')); document.getElementById('btn-diff-' + diff).classList.add('bg-purple-600', 'text-white'); playSoundEffect('click'); }
+        function setDifficulty(diff) {
+            state.difficulty = diff;
+
+            const buttons = {
+                easy: document.getElementById('btn-diff-easy'),
+                medium: document.getElementById('btn-diff-medium'),
+                hard: document.getElementById('btn-diff-hard')
+            };
+
+            if (!buttons.easy || !buttons.medium || !buttons.hard) return;
+
+            buttons.easy.className = "py-2 rounded-xl text-xs font-bold border-2 border-green-400 bg-white text-green-700 shadow-sm transition hover:bg-green-50";
+            buttons.medium.className = "py-2 rounded-xl text-xs font-bold border-2 border-amber-400 bg-white text-amber-700 shadow-sm transition hover:bg-amber-50";
+            buttons.hard.className = "py-2 rounded-xl text-xs font-bold border-2 border-rose-400 bg-white text-rose-700 shadow-sm transition hover:bg-rose-50";
+
+            if (diff === 'easy') {
+                buttons.easy.className = "py-2 rounded-xl text-xs font-bold border-2 border-green-700 bg-green-500 text-white shadow-md transition transform scale-105";
+            }
+
+            if (diff === 'medium') {
+                buttons.medium.className = "py-2 rounded-xl text-xs font-bold border-2 border-amber-700 bg-amber-500 text-white shadow-md transition transform scale-105";
+            }
+
+            if (diff === 'hard') {
+                buttons.hard.className = "py-2 rounded-xl text-xs font-bold border-2 border-rose-700 bg-rose-500 text-white shadow-md transition transform scale-105";
+            }
+
+            playSoundEffect('click');
+        }
+
         function startLearningNode() {
             let p = state.profiles.find(prof => prof.id === state.currentProfileId); if (!p || !p.age) return goToScreen('screen-age-selection');
             document.getElementById('module-age-indicator').innerText = `Tahap Umur: ${p.age} Tahun`; setDifficulty('easy');
@@ -626,30 +696,54 @@
             { text: "Kira jumlah epal ini.", asset: 'apple', count: 3, answer: 3, options: [2, 3, 4], mods: ['bilangan'], ageRange: [3,4], diff: ['easy'] },
             { text: "Ada berapa bintang?", asset: 'star', count: 5, answer: 5, options: [4, 5, 6], mods: ['bilangan'], ageRange: [3,4], diff: ['easy','medium'] },
             { text: "Kira jumlah bola.", asset: 'ball', count: 8, answer: 8, options: [7, 8, 9], mods: ['bilangan'], ageRange: [4,5], diff: ['medium', 'hard'] },
+            { text: "Kira jumlah duit syiling.", asset: 'coin', count: 12, answer: 12, options: [10, 11, 12], mods: ['bilangan'], ageRange: [5,6], diff: ['medium', 'hard'] },
             { text: "Apakah nombor SELEPAS 9?", mathText: "9 ➔ ?", answer: 10, options: [8, 10, 11], mods: ['bilangan'], ageRange: [5,6], diff: ['medium', 'hard'] },
+            { text: "Apakah nombor SEBELUM 15?", mathText: "? ➔ 15", answer: 14, options: [14, 16, 17], mods: ['bilangan'], ageRange: [5,6], diff: ['medium', 'hard'] },
             { text: "Pilih nombor yang lebih BESAR.", mathText: "15 atau 12?", answer: 15, options: [15, 12], mods: ['bilangan'], ageRange: [5,6], diff: ['hard'] },
+            
             // BENTUK
             { text: "Pilih bentuk BULAT.", shapeMode: 'Bulat', answer: 'Bulat', options: ['Bulat', 'Segi Tiga', 'Segi Empat'], mods: ['bentuk'], ageRange: [3,4,5,6], diff: ['easy'] },
             { text: "Bentuk apakah seperti tayar kereta?", shapeMode: 'Bulat', answer: 'Bulat', options: ['Bulat', 'Segi Tiga', 'Bintang'], mods: ['bentuk'], ageRange: [4,5,6], diff: ['medium'] },
             { text: "Pilih bentuk SEGI TIGA.", shapeMode: 'Segi Tiga', answer: 'Segi Tiga', options: ['Bulat', 'Segi Tiga', 'Bujur'], mods: ['bentuk'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
+            { text: "Bentuk apakah seperti buku?", shapeMode: 'Segi Empat', answer: 'Segi Empat', options: ['Bulat', 'Segi Tiga', 'Segi Empat'], mods: ['bentuk'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
+            { text: "Pilih bentuk BINTANG.", shapeMode: 'Bintang', answer: 'Bintang', options: ['Bulat', 'Bintang', 'Segi Empat'], mods: ['bentuk'], ageRange: [3,4,5,6], diff: ['easy', 'medium'] },
+
             // SAIZ
             { text: "Mana satu yang lebih BESAR?", sizeMode: 'besar', isATarget: true, answer: 'A', options: ['A', 'B'], mods: ['saiz'], ageRange: [3,4,5,6], diff: ['easy'] },
             { text: "Mana satu yang lebih KECIL?", sizeMode: 'besar', isATarget: false, answer: 'B', options: ['A', 'B'], mods: ['saiz'], ageRange: [3,4,5,6], diff: ['easy'] },
             { text: "Mana satu yang lebih PANJANG?", sizeMode: 'panjang', isATarget: true, answer: 'A', options: ['A', 'B'], mods: ['saiz'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
+            { text: "Mana satu yang lebih PENDEK?", sizeMode: 'panjang', isATarget: false, answer: 'B', options: ['A', 'B'], mods: ['saiz'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
+            { text: "Mana satu yang lebih TINGGI?", sizeMode: 'tinggi', isATarget: true, answer: 'A', options: ['A', 'B'], mods: ['saiz'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
+            { text: "Kumpulan mana yang lebih BANYAK?", sizeMode: 'banyak', isATarget: true, answer: 'A', options: ['A', 'B'], mods: ['saiz'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
+
             // WARNA
             { text: "Pilih warna MERAH.", colorMode: 'Merah', answer: 'Merah', options: ['Merah', 'Biru', 'Kuning'], mods: ['warna'], ageRange: [3,4,5,6], diff: ['easy'] },
+            { text: "Pilih warna BIRU.", colorMode: 'Biru', answer: 'Biru', options: ['Merah', 'Biru', 'Kuning'], mods: ['warna'], ageRange: [3,4,5,6], diff: ['easy'] },
             { text: "Apakah warna objek ini?", colorHex: 'bg-green-500', answer: 'Hijau', options: ['Hijau', 'Biru', 'Kuning'], mods: ['warna'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
-            // CORAK (Hardcoded properly)
+            { text: "Apakah warna objek ini?", colorHex: 'bg-yellow-400', answer: 'Kuning', options: ['Merah', 'Hijau', 'Kuning'], mods: ['warna'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
+            { text: "Apakah warna objek ini?", colorHex: 'bg-purple-600', answer: 'Ungu', options: ['Ungu', 'Biru', 'Kuning'], mods: ['warna'], ageRange: [5,6], diff: ['hard'] },
+
+            // CORAK (Hardcoded properly, NO ❓ in options)
             { text: "Apakah corak seterusnya?", patternMode: "🔴 🟡 🔴 ❓", answer: "🟡", options: ["🔴", "🟡", "🔵"], mods: ['corak'], ageRange: [3,4], diff: ['easy'] },
             { text: "Apakah corak seterusnya?", patternMode: "⭐ 🌙 ⭐ ❓", answer: "🌙", options: ["⭐", "🌙", "🍎"], mods: ['corak'], ageRange: [3,4,5], diff: ['easy', 'medium'] },
+            { text: "Apakah corak seterusnya?", patternMode: "🍎 🍌 🍎 ❓", answer: "🍌", options: ["🍎", "🍌", "🍓"], mods: ['corak'], ageRange: [3,4], diff: ['easy'] },
+            { text: "Apakah corak seterusnya?", patternMode: "🚗 🚲 🚗 ❓", answer: "🚲", options: ["🚗", "🚲", "✈️"], mods: ['corak'], ageRange: [4,5], diff: ['medium'] },
             { text: "Apakah corak seterusnya?", patternMode: "🔵 🟢 🟡 🔵 🟢 ❓", answer: "🟡", options: ["🔵", "🟢", "🟡"], mods: ['corak'], ageRange: [5,6], diff: ['hard'] },
+            { text: "Apakah corak seterusnya?", patternMode: "🍎 🍎 🍌 🍎 🍎 ❓", answer: "🍌", options: ["🍎", "🍌", "🍉"], mods: ['corak'], ageRange: [5,6], diff: ['hard'] },
+
             // RUANG
             { text: "Pilih objek di ATAS kotak.", spatialMode: 'Atas', answer: 'Atas', options: ['Atas', 'Bawah'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy'] },
+            { text: "Pilih objek di BAWAH kotak.", spatialMode: 'Bawah', answer: 'Bawah', options: ['Atas', 'Bawah'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy'] },
             { text: "Pilih objek di DALAM rumah.", spatialMode: 'Dalam', answer: 'Dalam', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
+            { text: "Pilih objek di LUAR rumah.", spatialMode: 'Luar', answer: 'Luar', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
             { text: "Bintang ada di sebelah KIRI atau KANAN?", spatialMode: 'Kiri', answer: 'Kiri', options: ['Kiri', 'Kanan'], mods: ['ruang'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
+
             // TAMBAH TOLAK
             { text: "Ali ada 2 epal, tambah lagi 1 epal. Berapa jumlahnya?", mathText: "2 + 1 = ?", answer: 3, options: [2, 3, 4], mods: ['tambahtolak'], ageRange: [5,6], diff: ['easy', 'medium'] },
-            { text: "Selesaikan operasi ini.", mathText: "5 - 2 = ?", answer: 3, options: [2, 3, 4], mods: ['tambahtolak'], ageRange: [5,6], diff: ['medium', 'hard'] }
+            { text: "Sara ada 3 bola, kawan beri 2 lagi. Berapa jumlah?", mathText: "3 + 2 = ?", answer: 5, options: [4, 5, 6], mods: ['tambahtolak'], ageRange: [5,6], diff: ['easy', 'medium'] },
+            { text: "Selesaikan operasi ini.", mathText: "5 - 2 = ?", answer: 3, options: [2, 3, 4], mods: ['tambahtolak'], ageRange: [5,6], diff: ['medium', 'hard'] },
+            { text: "Amir ada 4 pensel, dia hilangkan 1. Tinggal berapa?", mathText: "4 - 1 = ?", answer: 3, options: [2, 3, 4], mods: ['tambahtolak'], ageRange: [5,6], diff: ['hard'] },
+            { text: "Selesaikan operasi ini.", mathText: "6 + 3 = ?", answer: 9, options: [8, 9, 10], mods: ['tambahtolak'], ageRange: [6], diff: ['hard'] }
         ];
 
         // Generator Dinamik sebagai penambah variasi
@@ -704,9 +798,9 @@
             });
 
             pool = shuffleArray(pool);
-            let finalQuestions = pool.slice(0, 10); // Maksima ambil 10 curated jika ada
+            let finalQuestions = pool.slice(0, 10); 
 
-            // 2. Tambah soalan Generator untuk genapkan 10 soalan (tidak berulang dalam UI)
+            // 2. Tambah soalan Generator untuk genapkan 10 soalan
             while(finalQuestions.length < 10) {
                 let m = isMix ? availableModules[getRandomInt(0, availableModules.length - 1)] : module;
                 finalQuestions.push(generateDynamicQuestion(age, m, difficulty));
