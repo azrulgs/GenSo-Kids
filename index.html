@@ -771,7 +771,7 @@
                 q = { text: "Apakah corak seterusnya?", patternMode: seq.join(" ") + " ❓", answer: ans, options: shuffleArray([ans, pat.find(p=>p!==ans), '⭐']) };
             } else if (currentMod === 'ruang') {
                 let sm = ['Atas', 'Bawah', 'Dalam', 'Luar'][getRandomInt(0, 3)];
-                q = { text: `Kucing berada di mana: ${sm.toUpperCase()}`, spatialMode: sm, answer: sm, options: shuffleArray([sm, (sm==='Atas'?'Bawah':(sm==='Bawah'?'Atas':(sm==='Dalam'?'Luar':'Dalam')))]) };
+                q = { text: `Kucing/bola berada di mana: ${sm.toUpperCase()}`, spatialMode: sm, answer: sm, options: shuffleArray([sm, (sm==='Atas'?'Bawah':(sm==='Bawah'?'Atas':(sm==='Dalam'?'Luar':'Dalam')))]) };
             } else if (currentMod === 'tambahtolak') {
                 let isAdd = getRandomInt(0,1) === 0; let a = getRandomInt(1, 5); let b = getRandomInt(1, 5);
                 if(!isAdd && a < b) { let temp = a; a = b; b = temp; } if(!isAdd && a === b) a += 1;
