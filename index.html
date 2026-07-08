@@ -114,9 +114,6 @@
                         <button onclick="handleParentAuth('login')" class="w-1/2 py-2.5 bg-genius-purple text-white font-bold text-sm rounded-xl shadow-md hover:bg-purple-800 transition">Log Masuk</button>
                         <button onclick="handleParentAuth('register')" class="w-1/2 py-2.5 bg-amber-500 text-white font-bold text-sm rounded-xl shadow-md hover:bg-amber-600 transition">Daftar</button>
                     </div>
-                    <div class="text-center pt-2 border-t border-gray-100 mt-2">
-                        <button onclick="skipToFallbackDemo()" class="text-xs font-bold text-purple-600 hover:underline mt-2">Gunakan Mod Demo (Data di peranti ini sahaja)</button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -234,9 +231,9 @@
                 <div class="bg-purple-50 p-4 rounded-2xl mb-6 text-center border border-purple-200">
                     <p class="text-sm font-bold text-genius-purple mb-2">🌟 Pilih Tahap Kesukaran Soalan 🌟</p>
                     <div class="grid grid-cols-3 gap-2 max-w-sm mx-auto">
-                        <button onclick="setDifficulty('easy')" id="btn-diff-easy" class="py-2 rounded-xl text-xs font-bold border-2 border-green-400 bg-white text-green-700 shadow-sm transition">🟢 Mudah</button>
-                        <button onclick="setDifficulty('medium')" id="btn-diff-medium" class="py-2 rounded-xl text-xs font-bold border-2 border-amber-400 bg-white text-amber-700 shadow-sm transition">🟡 Sederhana</button>
-                        <button onclick="setDifficulty('hard')" id="btn-diff-hard" class="py-2 rounded-xl text-xs font-bold border-2 border-rose-400 bg-white text-rose-700 shadow-sm transition">🔴 Mencabar</button>
+                        <button onclick="setDifficulty('easy')" id="btn-diff-easy" class="py-2 rounded-xl text-xs font-bold border-2 border-green-400 bg-white text-green-700 shadow-sm transition hover:bg-green-50">🟢 Mudah</button>
+                        <button onclick="setDifficulty('medium')" id="btn-diff-medium" class="py-2 rounded-xl text-xs font-bold border-2 border-amber-400 bg-white text-amber-700 shadow-sm transition hover:bg-amber-50">🟡 Sederhana</button>
+                        <button onclick="setDifficulty('hard')" id="btn-diff-hard" class="py-2 rounded-xl text-xs font-bold border-2 border-rose-400 bg-white text-rose-700 shadow-sm transition hover:bg-rose-50">🔴 Mencabar</button>
                     </div>
                 </div>
 
@@ -319,7 +316,7 @@
                         <p class="text-sm text-gray-700">Umur: <strong id="parent-child-age" class="text-blue-700">-</strong></p>
                         <p class="text-sm text-gray-700">Jumlah Bintang: <strong id="parent-child-stars" class="text-amber-600">-</strong></p>
                         <div class="text-[11px] font-semibold text-gray-500 mt-2 p-2 bg-white rounded-lg border border-purple-100">
-                            🔊 Status Akaun: <span id="parent-account-type" class="text-purple-700">Mod Demo - Data di peranti ini sahaja</span>
+                            🔊 Status Akaun: <span id="parent-account-type" class="text-purple-700">Akaun Berdaftar - Data disimpan secara cloud</span>
                         </div>
                     </div>
                     <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 md:col-span-2">
@@ -431,12 +428,17 @@
             appId: "1:1081938568307:web:ca72be7823ab09be38f606"
         };
 
-        let db = null, auth = null, parentUid = "local_guest", isFirebaseActive = false;
+        let db = null, auth = null, parentUid = null, isFirebaseActive = false, isParentLoggedIn = false;
 
         try {
             firebase.initializeApp(firebaseConfig);
-            db = firebase.database(); auth = firebase.auth(); isFirebaseActive = true;
-        } catch (error) { console.warn("Firebase fallback active (LocalStorage mode ready)."); }
+            db = firebase.database(); 
+            auth = firebase.auth(); 
+            isFirebaseActive = true;
+        } catch (error) { 
+            console.error("Firebase initialization error:", error);
+            isFirebaseActive = false;
+        }
 
         // --- 2. GLOBAL APP STATE & MIGRATION SAFETY ---
         let state = {
@@ -551,22 +553,60 @@
         }
 
         // --- 5. FIREBASE AUTH, PASSWORD RESET & LOCALSTORAGE ---
+        function getFriendlyAuthError(error) {
+            const code = error && error.code ? error.code : "";
+            if (code === "auth/invalid-email") return "Format emel tidak sah.";
+            if (code === "auth/user-not-found") return "Akaun tidak dijumpai. Sila daftar dahulu.";
+            if (code === "auth/wrong-password") return "Kata laluan salah.";
+            if (code === "auth/weak-password") return "Kata laluan minimum 6 aksara.";
+            if (code === "auth/email-already-in-use") return "Emel ini telah didaftarkan. Sila log masuk.";
+            if (code === "auth/too-many-requests") return "Terlalu banyak percubaan. Sila cuba lagi sebentar nanti.";
+            if (code === "auth/network-request-failed") return "Sistem login sedang tidak tersedia. Sila semak internet dan cuba lagi.";
+            return "Sistem login sedang tidak tersedia. Sila cuba lagi sebentar nanti.";
+        }
+
         function handleParentAuth(type) {
-            const email = document.getElementById('auth-email').value.trim(); const password = document.getElementById('auth-password').value;
-            if (!email || !password) return alert("Sila isi e-mel dan kata laluan!");
-            if (!isFirebaseActive) return skipToFallbackDemo();
+            const email = document.getElementById('auth-email').value.trim(); 
+            const password = document.getElementById('auth-password').value;
+
+            if (!email || !password) { 
+                alert("Sila isi e-mel dan kata laluan!"); 
+                return; 
+            }
+
+            if (!isFirebaseActive || !auth) {
+                alert("Sistem login sedang tidak tersedia. Sila cuba lagi sebentar nanti.");
+                return;
+            }
 
             if (type === 'register') {
-                auth.createUserWithEmailAndPassword(email, password).then(cred => { parentUid = cred.user.uid; alert("Pendaftaran berjaya!"); loadUserDataAndProceed(); }).catch(err => alert("Ralat: " + err.message));
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then(cred => { 
+                        parentUid = cred.user.uid; 
+                        isParentLoggedIn = true;
+                        alert("Pendaftaran berjaya!"); 
+                        loadUserDataAndProceed(); 
+                    })
+                    .catch(err => alert(getFriendlyAuthError(err)));
             } else {
-                auth.signInWithEmailAndPassword(email, password).then(cred => { parentUid = cred.user.uid; alert("Log masuk berjaya!"); loadUserDataAndProceed(); }).catch(err => alert("Ralat: " + err.message));
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(cred => { 
+                        parentUid = cred.user.uid; 
+                        isParentLoggedIn = true;
+                        alert("Log masuk berjaya!"); 
+                        loadUserDataAndProceed(); 
+                    })
+                    .catch(err => alert(getFriendlyAuthError(err)));
             }
         }
         
         function handleForgotPassword() {
             const email = document.getElementById('auth-email').value.trim();
             if (!email) { alert("Sila masukkan emel ibu bapa dahulu."); return; }
-            if (!isFirebaseActive || !auth) { alert("Fungsi reset kata laluan hanya tersedia untuk akaun berdaftar. Untuk Mod Demo, data hanya disimpan di peranti ini."); return; }
+            if (!isFirebaseActive || !auth) {
+                alert("Sistem login sedang tidak tersedia. Sila cuba lagi sebentar nanti.");
+                return;
+            }
 
             auth.sendPasswordResetEmail(email)
                 .then(() => { alert("Link reset kata laluan telah dihantar ke emel anda. Sila semak inbox atau folder spam."); })
@@ -578,36 +618,102 @@
                 });
         }
 
-        function skipToFallbackDemo() { parentUid = "local_guest"; hydrateStateFromLocal(); goToScreen('screen-profile-manage'); }
         function loadUserDataAndProceed() {
-            db.ref(`parents/${parentUid}/state`).once('value').then(snapshot => {
-                state.profiles = (snapshot.exists() && snapshot.val().profiles) ? snapshot.val().profiles : [];
-                normalizeProfiles();
-                saveStateToStorage(); goToScreen('screen-profile-manage');
-            }).catch(() => skipToFallbackDemo());
+            if (!isFirebaseActive || !db || !parentUid) {
+                alert("Sistem data sedang tidak tersedia. Sila cuba lagi sebentar nanti.");
+                return;
+            }
+
+            db.ref(`parents/${parentUid}/state`).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const saved = snapshot.val();
+                        state.profiles = saved.profiles || [];
+                        if (saved.settings) state.settings = saved.settings;
+                        if (saved.currentProfileId) state.currentProfileId = saved.currentProfileId;
+                    } else {
+                        state.profiles = [];
+                    }
+
+                    normalizeProfiles();
+                    isParentLoggedIn = true;
+                    saveStateToStorage();
+                    goToScreen('screen-profile-manage');
+                })
+                .catch(error => {
+                    console.error("Load data error:", error);
+                    alert("Sistem data sedang tidak tersedia. Sila semak internet dan cuba lagi.");
+                });
         }
-        function handleParentLogout() { if (isFirebaseActive && auth.currentUser) auth.signOut().then(() => location.reload()); else location.reload(); }
-        function hydrateStateFromLocal() {
-            const savedState = localStorage.getItem(`genso_kids_state_${parentUid}`);
-            if (savedState) { try { let p = JSON.parse(savedState); if (p.profiles) state.profiles = p.profiles; if(p.settings) state.settings = p.settings; } catch(e) {} }
-            normalizeProfiles();
-            document.getElementById('toggle-sfx').checked = state.settings.sfxEnabled; document.getElementById('toggle-music').checked = state.settings.musicEnabled;
+
+        function handleParentLogout() { 
+            if (isFirebaseActive && auth && auth.currentUser) {
+                auth.signOut()
+                    .then(() => {
+                        parentUid = null;
+                        isParentLoggedIn = false;
+                        state.currentProfileId = null;
+                        goToScreen('screen-parent-login');
+                    })
+                    .catch(error => {
+                        console.error("Logout error:", error);
+                        alert("Gagal log keluar. Sila cuba lagi.");
+                    });
+            } else {
+                parentUid = null;
+                isParentLoggedIn = false;
+                state.currentProfileId = null;
+                goToScreen('screen-parent-login');
+            }
         }
+
         function saveStateToStorage() {
+            if (!isParentLoggedIn || !isFirebaseActive || !db || !parentUid) {
+                console.warn("Data tidak disimpan kerana ibu bapa belum login.");
+                return;
+            }
+
             localStorage.setItem(`genso_kids_state_${parentUid}`, JSON.stringify(state));
-            if (isFirebaseActive && parentUid !== "local_guest") db.ref(`parents/${parentUid}/state`).set({ profiles: state.profiles, settings: state.settings }).catch(() => {});
+
+            db.ref(`parents/${parentUid}/state`).set({ 
+                profiles: state.profiles, 
+                settings: state.settings,
+                currentProfileId: state.currentProfileId
+            }).catch(error => {
+                console.error("Save data error:", error);
+            });
         }
 
         // --- 6. ROUTING ENGINE ---
+        const protectedScreens = [
+            'screen-profile-manage',
+            'screen-main-menu',
+            'screen-age-selection',
+            'screen-module-selection',
+            'screen-game',
+            'screen-rewards',
+            'screen-parents',
+            'screen-settings',
+            'screen-about'
+        ];
+
         function goToScreen(screenId) {
-            playSoundEffect('click'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            if (protectedScreens.includes(screenId) && !isParentLoggedIn) {
+                screenId = 'screen-parent-login';
+            }
+
+            playSoundEffect('click'); 
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            
             const target = document.getElementById(screenId);
             if (target) { target.classList.add('active'); window.scrollTo(0, 0); }
+            
             if (screenId === 'screen-profile-manage') renderProfilesList();
             if (screenId === 'screen-main-menu') refreshMainMenuHeader();
             if (screenId === 'screen-rewards') renderRewardsGallery();
             if (screenId === 'screen-parents') renderParentsDashboard();
         }
+        
         function initApp() { initAudioContexts(); startBackgroundMusic(); goToScreen('screen-onboarding'); }
 
         // --- 7. PROFILE OPERATIONS ---
@@ -710,9 +816,9 @@
 
             // SAIZ
             { text: "Mana satu yang lebih BESAR?", sizeMode: 'besar', isATarget: true, answer: 'A', options: ['A', 'B'], mods: ['saiz'], ageRange: [3,4,5,6], diff: ['easy'] },
-            { text: "Mana satu yang lebih KECIL?", sizeMode: 'besar', isATarget: false, answer: 'B', options: ['A', 'B'], mods: ['saiz'], ageRange: [3,4,5,6], diff: ['easy'] },
+            { text: "Mana satu yang lebih KECIL?", sizeMode: 'besar', isATarget: true, answer: 'B', options: ['A', 'B'], mods: ['saiz'], ageRange: [3,4,5,6], diff: ['easy'] },
             { text: "Mana satu yang lebih PANJANG?", sizeMode: 'panjang', isATarget: true, answer: 'A', options: ['A', 'B'], mods: ['saiz'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
-            { text: "Mana satu yang lebih PENDEK?", sizeMode: 'panjang', isATarget: false, answer: 'B', options: ['A', 'B'], mods: ['saiz'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
+            { text: "Mana satu yang lebih PENDEK?", sizeMode: 'panjang', isATarget: true, answer: 'B', options: ['A', 'B'], mods: ['saiz'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
             { text: "Mana satu yang lebih TINGGI?", sizeMode: 'tinggi', isATarget: true, answer: 'A', options: ['A', 'B'], mods: ['saiz'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
             { text: "Kumpulan mana yang lebih BANYAK?", sizeMode: 'banyak', isATarget: true, answer: 'A', options: ['A', 'B'], mods: ['saiz'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
 
@@ -734,8 +840,8 @@
             // RUANG
             { text: "Di mana kedudukan bola.", spatialMode: 'Atas', answer: 'Atas', options: ['Atas', 'Bawah'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy'] },
             { text: "Di mana kedudukan bola.", spatialMode: 'Bawah', answer: 'Bawah', options: ['Atas', 'Bawah'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy'] },
-            { text: "Kucing/bola berada di mana.", spatialMode: 'D_l_m', answer: 'Dalam', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
-            { text: "Kucing/bola berada di mana.", spatialMode: 'L__r', answer: 'Luar', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
+            { text: "Kucing/bola berada di mana.", spatialMode: 'Dalam', answer: 'Dalam', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
+            { text: "Kucing/bola berada di mana.", spatialMode: 'Luar', answer: 'Luar', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
             { text: "Bintang ada di sebelah KIRI atau KANAN?", spatialMode: 'Kiri', answer: 'Kiri', options: ['Kiri', 'Kanan'], mods: ['ruang'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
 
             // TAMBAH TOLAK
@@ -758,8 +864,15 @@
                 let t = shapes[getRandomInt(0, 3)];
                 q = { text: `Pilih bentuk ${t.toUpperCase()}.`, shapeMode: t, answer: t, options: shuffleArray([t, shapes.find(s=>s!==t), 'Bujur'].slice(0,3)) };
             } else if (currentMod === 'saiz') {
-                let askA = getRandomInt(0,1) === 0; let sizeT = ['besar', 'tinggi', 'banyak'][getRandomInt(0,2)];
-                q = { text: `Mana satu yang lebih ${sizeT.toUpperCase()}?`, sizeMode: sizeT, isATarget: askA, answer: askA ? 'A' : 'B', options: ['A', 'B'] };
+                const sizeTemplates = [
+                    { text: "Mana satu yang lebih BESAR?", sizeMode: 'besar', isATarget: true, answer: 'A', options: ['A', 'B'] },
+                    { text: "Mana satu yang lebih KECIL?", sizeMode: 'besar', isATarget: true, answer: 'B', options: ['A', 'B'] },
+                    { text: "Mana satu yang lebih PANJANG?", sizeMode: 'panjang', isATarget: true, answer: 'A', options: ['A', 'B'] },
+                    { text: "Mana satu yang lebih PENDEK?", sizeMode: 'panjang', isATarget: true, answer: 'B', options: ['A', 'B'] },
+                    { text: "Mana satu yang lebih TINGGI?", sizeMode: 'tinggi', isATarget: true, answer: 'A', options: ['A', 'B'] },
+                    { text: "Kumpulan mana yang lebih BANYAK?", sizeMode: 'banyak', isATarget: true, answer: 'A', options: ['A', 'B'] }
+                ];
+                q = sizeTemplates[getRandomInt(0, sizeTemplates.length - 1)];
             } else if (currentMod === 'warna') {
                 let colors = ['Merah', 'Kuning', 'Biru', 'Hijau', 'Ungu']; let t = colors[getRandomInt(0, 4)];
                 q = { text: `Pilih warna ${t.toUpperCase()}.`, colorMode: t, answer: t, options: shuffleArray([t, ...colors.filter(c=>c!==t).slice(0,2)]) };
@@ -779,6 +892,22 @@
                 q = { text: `Selesaikan matematik ini.`, mathText: `${a} ${isAdd ? '+' : '-'} ${b} = ?`, answer: ans, options: shuffleArray([ans, ...getDistractors(ans, 1, 10, 2)]) };
             }
             if(!q.text) q = { text: "Kira 1 bintang.", asset: 'star', count: 1, answer: 1, options: [1,2,3] };
+            return q;
+        }
+
+        function cleanQuestion(q) {
+            if (!q) return null;
+            q.options = Array.isArray(q.options) ? q.options : [];
+            q.options = [...new Set(q.options)];
+
+            if (q.mods && q.mods.includes('corak') || q.patternMode) {
+                q.options = q.options.filter(opt => opt !== '❓');
+            }
+
+            if (!q.options.includes(q.answer)) {
+                q.options.unshift(q.answer);
+            }
+
             return q;
         }
 
@@ -805,7 +934,19 @@
                 let m = isMix ? availableModules[getRandomInt(0, availableModules.length - 1)] : module;
                 finalQuestions.push(generateDynamicQuestion(age, m, difficulty));
             }
-            return shuffleArray(finalQuestions);
+            
+            let cleaned = finalQuestions.map(cleanQuestion).filter(q => q && q.answer !== undefined && q.options.includes(q.answer));
+
+            while(cleaned.length < 10) {
+                let m = isMix ? availableModules[getRandomInt(0, availableModules.length - 1)] : module;
+                let newQ = generateDynamicQuestion(age, m, difficulty);
+                let cNewQ = cleanQuestion(newQ);
+                if (cNewQ && cNewQ.answer !== undefined && cNewQ.options.includes(cNewQ.answer)) {
+                    cleaned.push(cNewQ);
+                }
+            }
+
+            return shuffleArray(cleaned).slice(0, 10);
         }
 
         function initGameSession(age, moduleId) {
@@ -939,7 +1080,7 @@
         function renderParentsDashboard() {
             let p = state.profiles.find(prof => prof.id === state.currentProfileId);
             document.getElementById('parent-child-name').innerText = p ? p.name : '-'; document.getElementById('parent-child-age').innerText = p && p.age ? `${p.age} Tahun` : '-'; document.getElementById('parent-child-stars').innerText = p ? `${p.stars} ⭐` : '-';
-            document.getElementById('parent-account-type').innerText = isFirebaseActive && parentUid !== "local_guest" ? "Cloud Firebase (Disegerak)" : "Mod Demo — Data disimpan di peranti ini sahaja.";
+            document.getElementById('parent-account-type').innerText = "Akaun Berdaftar - Data disimpan secara cloud";
 
             const metricsBox = document.getElementById('parent-metrics-box'), suggestionsList = document.getElementById('parent-suggestions-list'), sessionLog = document.getElementById('parent-session-log');
             metricsBox.innerHTML = ''; suggestionsList.innerHTML = ''; sessionLog.innerHTML = '';
