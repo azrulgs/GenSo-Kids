@@ -732,10 +732,10 @@
             { text: "Apakah corak seterusnya?", patternMode: "🍎 🍎 🍌 🍎 🍎 ❓", answer: "🍌", options: ["🍎", "🍌", "🍉"], mods: ['corak'], ageRange: [5,6], diff: ['hard'] },
 
             // RUANG
-            { text: "Pilih objek di ATAS kotak.", spatialMode: 'Atas', answer: 'Atas', options: ['Atas', 'Bawah'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy'] },
-            { text: "Pilih objek di BAWAH kotak.", spatialMode: 'Bawah', answer: 'Bawah', options: ['Atas', 'Bawah'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy'] },
-            { text: "Pilih objek di DALAM rumah.", spatialMode: 'Dalam', answer: 'Dalam', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
-            { text: "Pilih objek di LUAR rumah.", spatialMode: 'Luar', answer: 'Luar', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
+            { text: "Di mana kedudukan bola.", spatialMode: 'Atas', answer: 'Atas', options: ['Atas', 'Bawah'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy'] },
+            { text: "Di mana kedudukan bola.", spatialMode: 'Bawah', answer: 'Bawah', options: ['Atas', 'Bawah'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy'] },
+            { text: "Kucing berada di mana.", spatialMode: 'Dalam', answer: 'Dalam', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
+            { text: "Kucing berada di mana.", spatialMode: 'Luar', answer: 'Luar', options: ['Dalam', 'Luar'], mods: ['ruang'], ageRange: [3,4,5,6], diff: ['easy','medium'] },
             { text: "Bintang ada di sebelah KIRI atau KANAN?", spatialMode: 'Kiri', answer: 'Kiri', options: ['Kiri', 'Kanan'], mods: ['ruang'], ageRange: [4,5,6], diff: ['medium', 'hard'] },
 
             // TAMBAH TOLAK
@@ -771,7 +771,7 @@
                 q = { text: "Apakah corak seterusnya?", patternMode: seq.join(" ") + " ❓", answer: ans, options: shuffleArray([ans, pat.find(p=>p!==ans), '⭐']) };
             } else if (currentMod === 'ruang') {
                 let sm = ['Atas', 'Bawah', 'Dalam', 'Luar'][getRandomInt(0, 3)];
-                q = { text: `Pilih kedudukan yang betul: ${sm.toUpperCase()}`, spatialMode: sm, answer: sm, options: shuffleArray([sm, (sm==='Atas'?'Bawah':(sm==='Bawah'?'Atas':(sm==='Dalam'?'Luar':'Dalam')))]) };
+                q = { text: `Kucing berada di mana: ${sm.toUpperCase()}`, spatialMode: sm, answer: sm, options: shuffleArray([sm, (sm==='Atas'?'Bawah':(sm==='Bawah'?'Atas':(sm==='Dalam'?'Luar':'Dalam')))]) };
             } else if (currentMod === 'tambahtolak') {
                 let isAdd = getRandomInt(0,1) === 0; let a = getRandomInt(1, 5); let b = getRandomInt(1, 5);
                 if(!isAdd && a < b) { let temp = a; a = b; b = temp; } if(!isAdd && a === b) a += 1;
