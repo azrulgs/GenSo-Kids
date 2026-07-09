@@ -76,7 +76,7 @@
         <div id="screen-onboarding" class="screen text-center w-full">
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-purple-200 max-w-2xl mx-auto">
                 <div class="flex justify-center mb-4 text-genius-purple"><i class="fas fa-hand-holding-heart text-5xl"></i></div>
-                <h2 class="text-2xl font-bold text-genius-purple mb-4">Selamat Datang Ibu Bapa & Khalifah Kecil!</h2>
+                <h2 class="text-2xl font-bold text-genius-purple mb-4">Selamat Datang Ibu Bapa & Graduan Cilik!</h2>
                 <div class="text-left text-gray-600 space-y-4 mb-6 px-4 text-sm md:text-base">
                     <p class="font-medium text-center text-purple-700 bg-purple-50 p-3 rounded-xl">
                         ✨ <strong>Anak Bijak, Anak Soleh</strong> — Diselaraskan dengan objektif pembelajaran awal prasekolah dan inspirasi KSPK Malaysia.
@@ -413,7 +413,7 @@
             </div>
             <span>GenSo Kids &bull; Genius Solihin</span>
         </div>
-        <p class="text-[10px] text-gray-400 font-medium">&copy; 2026 Genius Solihin. Pembelajaran Tadika 3–6 Tahun.</p>
+        <p class="text-[10px] text-gray-400 font-medium">&copy; 2026 Genius Solihin (Hak Cipta Terpelihara) Pembelajaran Tadika 3–6 Tahun.</p>
     </footer>
 
     <script>
@@ -724,17 +724,39 @@
                 let emo = p.avatar === 'girl' ? '👧' : p.avatar === 'robot' ? '🤖' : p.avatar === 'star' ? '⭐' : p.avatar === 'moon' ? '🌙' : '👦';
                 let c = document.createElement('div'); c.className = "p-4 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-2xl cursor-pointer transition transform hover:scale-105 flex flex-col items-center justify-center relative";
                 c.onclick = () => selectProfile(p.id);
-                c.innerHTML = `<div class="text-4xl mb-1">${emo}</div><div class="font-bold text-gray-800 text-sm truncate max-w-full">${p.name}</div><div class="text-[10px] text-purple-600 font-bold">${p.age ? p.age + ' Tahun' : 'Pilih Umur'}</div><div class="absolute top-1 right-1 bg-yellow-400 text-purple-900 font-bold text-[9px] px-1.5 py-0.5 rounded-full">⭐ ${p.stars || 0}</div>`;
+                c.innerHTML = `<button onclick="deleteProfile('${p.id}', event)" class="absolute top-1 left-1 text-red-400 hover:text-red-600 p-1 z-10"><i class="fas fa-trash-alt text-[10px]"></i></button><div class="text-4xl mb-1">${emo}</div><div class="font-bold text-gray-800 text-sm truncate max-w-full">${p.name}</div><div class="text-[10px] text-purple-600 font-bold">${p.age ? p.age + ' Tahun' : 'Pilih Umur'}</div><div class="absolute top-1 right-1 bg-yellow-400 text-purple-900 font-bold text-[9px] px-1.5 py-0.5 rounded-full">⭐ ${p.stars || 0}</div>`;
                 lc.appendChild(c);
             });
         }
-        document.querySelectorAll('.avatar-option').forEach(opt => { opt.onclick = function() { document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('border-purple-600', 'bg-purple-100')); this.classList.add('border-purple-600', 'bg-purple-100'); this.setAttribute('data-selected', 'true'); }; });
+
+        function deleteProfile(id, event) {
+            event.stopPropagation();
+            if (confirm("Adakah anda pasti mahu memadam profil ini? Semua rekod akan hilang.")) {
+                state.profiles = state.profiles.filter(p => p.id !== id);
+                if (state.currentProfileId === id) state.currentProfileId = null;
+                saveStateToStorage();
+                renderProfilesList();
+            }
+        }
+
+        document.querySelectorAll('.avatar-option').forEach(opt => { 
+            opt.onclick = function() { 
+                document.querySelectorAll('.avatar-option').forEach(o => {
+                    o.classList.remove('border-purple-600', 'bg-purple-100');
+                    o.removeAttribute('data-selected');
+                });
+                this.classList.add('border-purple-600', 'bg-purple-100'); 
+                this.setAttribute('data-selected', 'true'); 
+            }; 
+        });
+
         function createNewProfile() {
             const name = document.getElementById('child-name-input').value.trim(); if (!name) return alert("Sila masukkan nama manja anak!");
             let selOpt = document.querySelector('.avatar-option[data-selected="true"]');
             state.profiles.push({ id: 'child_' + Date.now(), name: name, avatar: selOpt ? selOpt.getAttribute('data-avatar') : 'boy', age: null, stars: 0, stickers: [], performance: {} });
             state.currentProfileId = state.profiles[state.profiles.length - 1].id; saveStateToStorage(); document.getElementById('child-name-input').value = ''; goToScreen('screen-age-selection');
         }
+
         function selectProfile(id) { state.currentProfileId = id; let p = state.profiles.find(prof => prof.id === id); p.age ? goToScreen('screen-main-menu') : goToScreen('screen-age-selection'); }
         function refreshMainMenuHeader() {
             let p = state.profiles.find(prof => prof.id === state.currentProfileId); if (!p) return;
